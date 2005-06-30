@@ -10,7 +10,12 @@ LOOP UNTIL N = 0
 END
 
 LYRIC1:
-  PRINT N; " bottle";
+  IF N <> 0 THEN
+    PRINT N;
+  ELSE
+    PRINT "No more";
+  END IF
+  PRINT " bottle";
   IF N <> 1 THEN
     PRINT "s";
   END IF
