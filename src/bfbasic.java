@@ -2,7 +2,7 @@
 // BFBASIC -- Basic programming language compiler for BF
 // Filename : bfbasic.java
 // Language : Java 1.2+
-// Version  : 1.40
+// Version  : 1.41
 // Copyright: (C) 2001-2005 Jeffry Johnston
 //
 // This program is free software; you can redistribute it and/or
@@ -11,6 +11,7 @@
 // for more details.
 //
 // Version history.  See bfbasic.txt for more information:
+// 1.41    29 Jun 2005
 // 1.40    17 Mar 2005
 // 1.30    30 Oct 2003
 // 1.20    23 Oct 2003
@@ -41,7 +42,7 @@ import java.util.Stack;
 // bfbasic
 //********************************************************************
 public class bfbasic {
-  public static final String VERSION = "1.40";
+  public static final String VERSION = "1.41";
   
   static final int WRAP_DEFAULT = 72;
 
@@ -57,7 +58,8 @@ public class bfbasic {
   static int _line = 0, _wrapWidth = 0, _optLevel = 2;
   static String _p = "", _sourceLine = "";
   static char _a;
-  static Stack _doStack = new Stack(), _forStack = new Stack(), 
+  static Stack _doStack = new Stack(), _forStack = new Stack(),
+               _forTopStack = new Stack(), _forStepStack = new Stack(),
                _ifStack = new Stack();
   static int _annex = 1, _doAnnex = 1, _ifAnnex = 1, _forAnnex = 1, 
              _gosubAnnex = 0;
@@ -611,8 +613,8 @@ public class bfbasic {
     if (n == -1) { errout("Syntax error"); }
     String expr3 = (_sourceLine.substring(0, n)).trim();
     _forStack.push(new Integer(-_forAnnex));
+    _forTopStack.push(new String(expr3));
     _sourceLine = expr + "=" + expr2 + ":" + p0
-                 + ":IF " + expr + ">" + expr3 + " THEN GOTO _F" + (_forAnnex + 1)
                  + ":" + (_sourceLine.substring(n)).trim();
     if (_debug) {
       writeTemp("\n{FOR " + debugtext(expr) + "=" + debugtext(expr2)
@@ -1022,10 +1024,18 @@ public class bfbasic {
     if (n == -1) { errout("Syntax error"); }
     String expr = (_sourceLine.substring(0, n)).trim();
     Integer l = (Integer) _forStack.pop();
-    String temp = expr + "=" + expr + "+1:GOTO _F" + Math.abs(l.intValue()) + ":";
+    String m = (String) _forTopStack.pop();
+    // if m is a number in the range 0-255 then {                                                     
+    // String temp = expr + "=" + expr + "+1:IF NOT(" + expr + "="
+    //              + ((m+1)&255) + ") THEN GOTO _F" + Math.abs(l.intValue()) + ":";
+    // } else { // m is not a number
+    String temp = expr + "=" + expr + "+1:IF NOT(" + expr + "="
+                 + m + "+1) THEN GOTO _F" + Math.abs(l.intValue()) + ":";
+    // } 
     if (l.intValue() < 0) { temp += "_F" + (-l.intValue() + 1) + ":"; }
     _sourceLine = temp + (_sourceLine.substring(n)).trim();
     if (_debug) { writeTemp("\n{NEXT " + debugtext(expr) + "}\n"); }
+    // writeTemp(o);
   }
 
   //------------------------------------------------------------------
@@ -1442,6 +1452,8 @@ public class bfbasic {
         debug += "(at)"; break;
       case 27:
         debug += "(esc)"; break;
+      case '#':
+        debug += "(hash)"; break;
       default:
         debug += text.substring(d, d + 1); break;
       }
