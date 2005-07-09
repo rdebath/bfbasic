@@ -2,7 +2,7 @@
 // BFBASIC -- Basic programming language compiler for BF
 // Filename : bfbasic.java
 // Language : Java 1.2+
-// Version  : 1.41
+// Version  : 1.50 rc1
 // Copyright: (C) 2001-2005 Jeffry Johnston
 //
 // This program is free software; you can redistribute it and/or
@@ -11,7 +11,16 @@
 // for more details.
 //
 // Version history.  See bfbasic.txt for more information:
-// 1.42    30 Jun 2005
+// 1.50    09 Jul 2005 [Jon] (Release candidate 1)
+//   * Added -t prints $var=cell line for bfdebug
+//   * Added FOR...STEP (for -ve STEP use 0-#)
+//   * Added SELECT CASE flow control, can be nested
+//     SELECT CASE expr, CASE expr, END SELECT, EXIT SELECT
+//   * Added INCLUDE for inline compilation of external files
+//   * Added LIBRARY to INCLUDE libraries at end of program
+//   * Change: Display filename on compile error
+//   * Line number correct for current file
+// 1.42    30 Jun 2005 [Jeff]
 //   * Added --?, --help, /? (same as -?)
 //   * Added -dd (same as -D)
 //   * Added -ddd, purely debug mode
@@ -49,30 +58,32 @@ import java.util.Stack;
 // bfbasic
 //********************************************************************
 public class bfbasic {
-  public static final String VERSION = "1.42";
-  
+  public static final String VERSION = "1.50 rc1";
+
   static final int WRAP_DEFAULT = 72;
 
   static boolean _insert = false, _crlf = false,
-                 _needPre = true, _needPost = false;
+                 _needPre = true, _needPost = false,
+		 _vartable = false;
   /**
    * 0: none, 1: -d, 2: -dd, 3: -ddd
    */
-  static int _debug = 0; 
-  static BufferedReader _in; 
+  static int _debug = 0;
+  static BufferedReader _in;
   static PrintStream _out;
-  static StringWriter _tempString = new StringWriter(); 
-  static PrintWriter _tempOut = new PrintWriter(_tempString); 
+  static StringWriter _tempString = new StringWriter();
+  static PrintWriter _tempOut = new PrintWriter(_tempString);
   static LinkedHashMap _var = new LinkedHashMap(), 
                        _label = new LinkedHashMap();
   static int _line = 0, _wrapWidth = 0, _optLevel = 2;
-  static String _p = "", _sourceLine = "";
+  static String _p = "", _sourceLine = "", _curfile = "";
   static char _a;
   static Stack _doStack = new Stack(), _forStack = new Stack(),
                _forTopStack = new Stack(), _forStepStack = new Stack(),
-               _ifStack = new Stack();
-  static int _annex = 1, _doAnnex = 1, _ifAnnex = 1, _forAnnex = 1, 
-             _gosubAnnex = 0;
+               _ifStack = new Stack(), _caseStack = new Stack(),
+	       _caseDepthStack = new Stack(), _libraryStack = new Stack();
+  static int _annex = 1, _doAnnex = 1, _ifAnnex = 1, _forAnnex = 1,
+             _gosubAnnex = 0, _selectAnnex = 1;
 
   //------------------------------------------------------------------
   // main
@@ -114,9 +125,11 @@ public class bfbasic {
           try {
             f2 = cmdline[n + 1];
           } catch (ArrayIndexOutOfBoundsException e) {
-            errout("Error: Missing output filename"); 
+            errout("Error: Missing output filename");
           }
           n++;
+       } else if (cmdline[n].equals("-t")) { // table
+          _vartable = true;
         } else if (cmdline[n].equals("-w")) {
           _wrapWidth = WRAP_DEFAULT;
           String width = null;
@@ -133,14 +146,14 @@ public class bfbasic {
               n++;
             } catch (NumberFormatException e) {
             }  
-          }
+          }System.out.println();
         } else if (cmdline[n].startsWith("-")) {
           errout("Error: Unrecognized option: " + cmdline[n]);
         } else {
           if (f == "")
             f = cmdline[n];
           else if (f2 == "")
-            f2 = cmdline[n]; 
+            f2 = cmdline[n];
         }
       } catch (ArrayIndexOutOfBoundsException e) {
         break;
@@ -155,6 +168,7 @@ public class bfbasic {
       if (f2.equals("")) { f2 = f + ".b"; }
       // add missing ".bas" extension
       f += ".bas";
+      _curfile = f;
     } else {
       // create default output filename
       if (f2.equals("")) { f2 = f.substring(0, n) + ".b"; }
@@ -198,7 +212,45 @@ public class bfbasic {
     first();
 
     // main loop
-    while (true) {
+    compile(f,_in);
+
+    //include libraries
+    while (!_libraryStack.empty()) {
+      _sourceLine = ((String) _libraryStack.pop()).trim();
+      parse();
+      bf_include();
+    }
+
+    // output footer
+    last();
+    String out = _tempString.getBuffer().toString();
+    arrows(out, false);
+
+    // write variable table for -ddd
+    if (_debug == 3 | _vartable == true) {
+      Iterator iter = _var.keySet().iterator();
+      while (iter.hasNext()) {
+        Object key = iter.next();
+        int next = ((Integer)_var.get(key)).intValue();
+        write("$" + key + "=" + next);
+      }
+      write("\n");
+    }
+
+    write(arrows(out, true));
+    if (_debug > 0) { write("\n"); }
+    if (_debug < 2) { write("@\n"); }
+
+    // display successful completion text
+    System.out.println();
+    System.out.println("Done, line " + _line + ".");
+  }
+
+  //------------------------------------------------------------------
+  // compile -- compile code in file _in
+  //------------------------------------------------------------------
+  public static void compile(String f, BufferedReader _in) {
+      while (true) {
       _sourceLine = _sourceLine.trim();
 
       // strip leading colons, if any
@@ -226,6 +278,9 @@ public class bfbasic {
         _sourceLine = _sourceLine.trim();
       }
 
+      //Debug parser
+      //System.out.println(_sourceLine);
+
       // parse first token of statement
       parse();
       _p = _p.toUpperCase();
@@ -235,6 +290,8 @@ public class bfbasic {
         bf_beep();
       } else if (_p.equals("BF")) {
         bf_bf();
+      } else if (_p.equals("CASE")) {
+        bf_case();
       } else if (_p.equals("CLS")) {
         bf_cls();
       } else if (_p.equals("COLOR") || _p.equals("COLOUR")) {
@@ -257,11 +314,15 @@ public class bfbasic {
         bf_goto();
       } else if (_p.equals("IF")) {
         bf_if();
+      } else if (_p.equals("INCLUDE")) {
+        bf_include();
       } else if (_p.equals("INPUT")) {
         bf_input();
       } else if (_p.equals("LET")) {
         parse();
         bf_let();
+      } else if (_p.equals("LIBRARY")) {
+        bf_library();
       } else if (_p.equals("LOCATE")) {
         bf_locate();
       } else if (_p.equals("LOOP")) {
@@ -276,6 +337,8 @@ public class bfbasic {
         bf_rem();
       } else if (_p.equals("RETURN")) {
         bf_return();
+      } else if (_p.equals("SELECT")) {
+        bf_select();
       } else if (_p.equals("STOP")) {
         bf_stop();
       } else if (_p.equals("SWAP")) {
@@ -295,30 +358,6 @@ public class bfbasic {
         bf_let();
       }
     }
-
-    // output footer
-    last();
-    String out = _tempString.getBuffer().toString();
-    arrows(out, false);
-
-    // write variable table for -ddd
-    if (_debug == 3) {
-      Iterator iter = _var.keySet().iterator();
-      while (iter.hasNext()) {
-        Object key = iter.next();
-        int next = ((Integer)_var.get(key)).intValue();
-        write("$" + key + "=" + next);
-      }
-      write("\n");
-    }
-    
-    write(arrows(out, true));
-    if (_debug > 0) { write("\n"); }
-    if (_debug < 2) { write("@\n"); }
-
-    // display successful completion text
-    System.out.println();
-    System.out.println("Done, line " + _line + ".");
   }
 
   //------------------------------------------------------------------
@@ -337,7 +376,7 @@ public class bfbasic {
     if (_var.containsKey(varname)) {
       errout("Variable '" + varname + "' already dimensioned");
     }
-    _var.put(varname, new Integer(elements)); 
+    _var.put(varname, new Integer(elements));
   }
 
   //------------------------------------------------------------------
@@ -389,7 +428,7 @@ public class bfbasic {
         if (_optLevel >= 2 && !write) {
           interaction.add(varname);
         }
-        
+
         // extra verbose (-dd): write the mp numbers
         // note: does not apply to -ddd
         if (write && _debug == 2) { out.append(mp + ""); }
@@ -403,13 +442,13 @@ public class bfbasic {
           }
           mp = pos;
           if (write && _debug > 1) { out.append("@" + varname); }
-        }  
+        }
       } else {
         // output char
         if (write) { out.append(c + ""); }
       }
     }
-    
+
     // If we're not writing things out this pass, then figure out 
     // the best variable ordering.  
     if (!write) {
@@ -430,8 +469,8 @@ public class bfbasic {
             toArray(new Integer[_var.values().size()]), 
             interaction, 10);
         var.findBestOrder();
-        
-        // clear out the old variable info and rebuild 
+
+        // clear out the old variable info and rebuild
         _var.clear();
         int order[] = var.getOrder();
         int start[] = var.getStart();
@@ -471,6 +510,36 @@ public class bfbasic {
     _sourceLine = "";
     _needPre = false;
   }
+
+  //------------------------------------------------------------------
+  // bf_case -- builds BFBASIC code for the CASE statement
+  //------------------------------------------------------------------
+  public static void bf_case() {
+  // CASE expr
+  // CASE ELSE
+    //System.out.println("before: '"+_sourceLine+"'\n");
+    if ( _caseStack.empty() ) { errout("CASE without SELECT"); }
+    _sourceLine = (_a + _sourceLine).trim();
+    int n = findexpr("", 0);
+    if (n == -1) { errout("Syntax error"); }
+    String expr = (_sourceLine.substring(0, n)).trim();
+    _sourceLine = "";
+    int l = (Integer) _caseDepthStack.peek();
+    if (expr.equals("ELSE")) {
+      if ( l >= 1 ) { _sourceLine = "ELSE"; }
+    } else {
+      if ( l >=1 ) {
+        _sourceLine = "ELSE:";
+	}
+	_sourceLine = _sourceLine + "IF " + _caseStack.peek() + "=" + expr +" THEN:";
+	l = (Integer) _caseDepthStack.pop();
+	l = l + 1;
+        _caseDepthStack.push(l);
+    }
+    //System.out.println("after: '"+_sourceLine+"'\n");
+    if (_debug > 0) { writeTemp("\n{CASE " + debugtext(expr) + "}\n"); }
+  }
+
 
   //------------------------------------------------------------------
   // bf_cls -- builds BFBASIC code for the CLS statement
@@ -589,15 +658,29 @@ public class bfbasic {
       Integer l = (Integer) _ifStack.pop();
       _sourceLine = "_I" + l + ":" + _sourceLine;
     } else {
-      //END
-      //  @G-                   G=0 (no more basic statements execute)
-      //  @Q-                   Q=0 (quit)
-      _needPost = true;
-      _sourceLine = (_p + _a + _sourceLine).trim();
-      String o = pre() + "@_G-@_Q-" + post();
-      if (_debug > 0) { o = "\n(END)\n" + o; }
-      writeTemp(o); //arrows(o);
-      _needPre = true;
+      if (_p.equalsIgnoreCase("SELECT")) {
+      // END SELECT
+      if (_debug > 0) { writeTemp("\n{END SELECT}\n"); }
+      if (_caseStack.empty()) { errout("END SELECT without SELECT"); }
+      Integer l = (Integer) _caseDepthStack.pop();
+      String temp = (String) _caseStack.pop();
+      _sourceLine = "";
+      for (int i = 1; i <= l; i++) {
+        _sourceLine = _sourceLine + "END IF:";
+      }
+      _sourceLine = _sourceLine + "_C" + (_selectAnnex-1) + ":";
+      _selectAnnex -= 1;
+    } else {
+        //END
+        //  @G-                   G=0 (no more basic statements execute)
+        //  @Q-                   Q=0 (quit)
+        _needPost = true;
+        _sourceLine = (_p + _a + _sourceLine).trim();
+        String o = pre() + "@_G-@_Q-" + post();
+        if (_debug > 0) { o = "\n(END)\n" + o; }
+        writeTemp(o); //arrows(o);
+        _needPre = true;
+      }
     }
   }
 
@@ -621,6 +704,10 @@ public class bfbasic {
       _sourceLine = "GOTO _F" + (Math.abs(l.intValue()) + 1) + ":" + _sourceLine;
       if (l.intValue() > 0) { l = new Integer(-l.intValue()); }
       _forStack.push(l);
+    } else if (_p.equals("SELECT")) {
+      if (_debug > 0) { writeTemp("\n{EXIT SELECT}\n"); }
+      if (_caseStack.empty()) { errout("EXIT SELECT without SELECT"); }
+      _sourceLine = "GOTO _C" + (_selectAnnex -  1) + ":";
     } else {
       errout("Syntax error");
     }
@@ -643,8 +730,16 @@ public class bfbasic {
     n = findexpr("", 0);
     if (n == -1) { errout("Syntax error"); }
     String expr3 = (_sourceLine.substring(0, n)).trim();
+    String s = "1";
+    n = findexpr("STEP",0);
+    if ( n != -1) {
+      expr3 = (_sourceLine.substring(0, n)).trim();
+      s = (_sourceLine.substring(n+4)).trim();
+    }
+    n = findexpr("", 0); // restore n
     _forStack.push(new Integer(-_forAnnex));
     _forTopStack.push(new String(expr3));
+    _forStepStack.push(new String(s));
     _sourceLine = expr + "=" + expr2 + ":" + p0
                  + ":" + (_sourceLine.substring(n)).trim();
     if (_debug > 0) {
@@ -746,6 +841,29 @@ public class bfbasic {
     writeTemp(o); //arrows(o);
     _needPre = true;
   }
+
+  //------------------------------------------------------------------
+  // bf_include -- inline compilation of external source file
+  //------------------------------------------------------------------
+  public static void bf_include() {
+    _sourceLine = (_a + _sourceLine).trim();
+    String f = (_sourceLine.substring(1, _sourceLine.length()-1)).trim();
+    _sourceLine="";
+    try {
+      _in = new BufferedReader(new FileReader(f)); // Java 1.1
+    } catch (FileNotFoundException e) {
+      errout("Error opening '" + f + "'.  File not found");
+    }
+    String _tmpfile = _curfile;
+    _curfile = f;
+    int _tline = _line;
+    _line = 0;
+    compile(f,_in);
+    _line = _tline;
+    _curfile = _tmpfile;
+    _sourceLine = "";
+  }
+
 
   //------------------------------------------------------------------
   // bf_input -- writes out BF code for the INPUT statement
@@ -904,7 +1022,7 @@ public class bfbasic {
     _sourceLine = (_sourceLine.substring(n)).trim();
     ae = new AlgebraicExpression(expr2);
     o += ae.parse() + "@_T0[@~" + p0 + ">+<@_T0-]@~" + p0
-         + ">>[[>>]+[<<]>>-]+[>>]<[-]<[<<]>[>[>>]<+<[<<]>-]>[>>]<<[-<<]" 
+         + ">>[[>>]+[<<]>>-]+[>>]<[-]<[<<]>[>[>>]<+<[<<]>-]>[>>]<<[-<<]"
          + post();
     if (_debug > 0) {
       o = "\n(" + p0 + "(" + debugtext(expr) + ")=" + debugtext(expr2) + ")\n" + o;
@@ -938,7 +1056,7 @@ public class bfbasic {
       for (int l = 0; l < parsing.length(); l++) {
         // get character
         c = parsing.charAt(l);
-        
+
         // variable
         if (c == '@') {
           // find end of variable name
@@ -958,25 +1076,35 @@ public class bfbasic {
           if (varname.equals(_p)) {
             out = null;
             break;
-          }  
+          }
           if (varname.equals("_T0")) {
             varname = _p;
           }
-          out.append("@" + varname); 
+          out.append("@" + varname);
         } else {
-          out.append(c + ""); 
-        }  
-      } 
-    }    
+          out.append(c + "");
+        }
+      }
+    }
     String o;
     if (out == null || _optLevel < 3) {
       o = pre() + parsing + "@" + _p + "[-]@_T0[@" + _p + "+@_T0-]" + post();
     } else {
       o = pre() + out.toString() + post();
-    }  
+    }
     if (_debug > 0) { o = "\n(" + _p + "=" + debugtext(expr) + ")\n" + o; }
     writeTemp(o); //arrows(o);
   }
+
+  //------------------------------------------------------------------
+  // bf_library -- inline compilation of external source file
+  //------------------------------------------------------------------
+  public static void bf_library() {
+    _sourceLine = "INSTALL " + (_a + _sourceLine).trim();
+    _libraryStack.push(new String (_sourceLine));
+    _sourceLine = "";
+  }
+
 
   //------------------------------------------------------------------
   // bf_locate -- builds BFBASIC code for the LOCATE statement
@@ -1056,13 +1184,9 @@ public class bfbasic {
     String expr = (_sourceLine.substring(0, n)).trim();
     Integer l = (Integer) _forStack.pop();
     String m = (String) _forTopStack.pop();
-    // if m is a number in the range 0-255 then {                                                     
-    // String temp = expr + "=" + expr + "+1:IF NOT(" + expr + "="
-    //              + ((m+1)&255) + ") THEN GOTO _F" + Math.abs(l.intValue()) + ":";
-    // } else { // m is not a number
-    String temp = expr + "=" + expr + "+1:IF NOT(" + expr + "="
-                 + m + "+1) THEN GOTO _F" + Math.abs(l.intValue()) + ":";
-    // } 
+    String s = (String) _forStepStack.pop();
+    String temp = expr + "=" + expr + " + " + s + ":IF NOT(" + expr + "="
+                 + m + " + " + s + ") THEN GOTO _F" + Math.abs(l.intValue()) + ":";
     if (l.intValue() < 0) { temp += "_F" + (-l.intValue() + 1) + ":"; }
     _sourceLine = temp + (_sourceLine.substring(n)).trim();
     if (_debug > 0) { writeTemp("\n{NEXT " + debugtext(expr) + "}\n"); }
@@ -1313,6 +1437,32 @@ public class bfbasic {
   }
 
   //------------------------------------------------------------------
+  // bf_select -- Initiate a SELECT...CASE structure
+  //------------------------------------------------------------------
+  public static void bf_select() {
+    //SELECT CASE expr
+    //_caseStack.push(new String ("expr"));
+    //_caseDepthStack.push(new Integer (0));
+    //_sourceLine="";
+
+    _sourceLine = (_a + _sourceLine).trim();
+    int n = findexpr(" ", 0);
+    if (n == -1) { errout("Syntax error"); }
+    String expr = (_sourceLine.substring(0, n)).trim();
+    if ( !expr.equals("CASE") ) { errout("Syntax error"); }
+    int m = findexpr("",n + 1);
+    if (m == -1) { errout("Syntax error"); }
+    expr = (_sourceLine.substring(n, m)).trim();
+
+    _caseStack.push(new String (expr));
+    _caseDepthStack.push(new Integer (0));
+    _sourceLine="";
+    _selectAnnex += 1;
+
+    if (_debug > 0) { writeTemp("\n{SELECT CASE " + debugtext(expr) + "}\n"); }
+  }
+
+  //------------------------------------------------------------------
   // bf_stop -- writes out BF code for the STOP statement
   //------------------------------------------------------------------
   public static void bf_stop() {
@@ -1498,7 +1648,7 @@ public class bfbasic {
   public static void errout(String e) {
     System.out.println();
     System.out.print(e);
-    if (_line > 0) { System.out.print(", line " + _line); }
+    if (_line > 0) { System.out.print(", line " + _line + " in " + _curfile); }
     System.out.println(".");
     System.exit(1);
   }
@@ -1830,6 +1980,7 @@ public class bfbasic {
     System.out.println("    -dd          Verbose debug output");
     System.out.println("    -ddd         Only debug output, no > or < generated");
     System.out.println("    -Olevel      Optimization level, default: 2");
+    System.out.println("    -t           Write variable table");
     System.out.println("    -w [column]  Wraps output at the given column, default: 72");
     System.out.println("    FILE         Input filename");
     System.out.println("    -o outfile   Specify output filename, default: FILE.b");
