@@ -2,7 +2,7 @@
 // BFBASIC -- Basic programming language compiler for BF
 // Filename : bfbasic.java
 // Language : Java 1.2+
-// Version  : 1.50 rc1
+// Version  : 1.50 rc2
 // Copyright: (C) 2001-2005 Jeffry Johnston
 //
 // This program is free software; you can redistribute it and/or
@@ -11,6 +11,9 @@
 // for more details.
 //
 // Version history.  See bfbasic.txt for more information:
+// 1.50    10 Jul 2005 [Jon] (Release candidate 2)
+//   * Fixed bug in CASE handling which prevented compiling
+//     on some implementations
 // 1.50    09 Jul 2005 [Jon] (Release candidate 1)
 //   * Added -t prints $var=cell line for bfdebug
 //   * Added FOR...STEP (for -ve STEP use 0-#)
@@ -58,7 +61,7 @@ import java.util.Stack;
 // bfbasic
 //********************************************************************
 public class bfbasic {
-  public static final String VERSION = "1.50 rc1";
+  public static final String VERSION = "1.50 rc2";
 
   static final int WRAP_DEFAULT = 72;
 
@@ -524,17 +527,19 @@ public class bfbasic {
     if (n == -1) { errout("Syntax error"); }
     String expr = (_sourceLine.substring(0, n)).trim();
     _sourceLine = "";
-    int l = (Integer) _caseDepthStack.peek();
+    Integer ltmp = (Integer) _caseDepthStack.peek();
+    int l = ltmp.intValue();
     if (expr.equals("ELSE")) {
       if ( l >= 1 ) { _sourceLine = "ELSE"; }
     } else {
       if ( l >=1 ) {
         _sourceLine = "ELSE:";
-	}
-	_sourceLine = _sourceLine + "IF " + _caseStack.peek() + "=" + expr +" THEN:";
-	l = (Integer) _caseDepthStack.pop();
-	l = l + 1;
-        _caseDepthStack.push(l);
+      }
+      _sourceLine = _sourceLine + "IF " + _caseStack.peek() + "=" + expr +" THEN:";
+      ltmp = (Integer) _caseDepthStack.pop();
+      l = ltmp.intValue();
+      l = l + 1;
+      _caseDepthStack.push(new Integer (l));
     }
     //System.out.println("after: '"+_sourceLine+"'\n");
     if (_debug > 0) { writeTemp("\n{CASE " + debugtext(expr) + "}\n"); }
@@ -662,7 +667,8 @@ public class bfbasic {
       // END SELECT
       if (_debug > 0) { writeTemp("\n{END SELECT}\n"); }
       if (_caseStack.empty()) { errout("END SELECT without SELECT"); }
-      Integer l = (Integer) _caseDepthStack.pop();
+      Integer ltmp = (Integer) _caseDepthStack.pop();
+      int l = ltmp.intValue();
       String temp = (String) _caseStack.pop();
       _sourceLine = "";
       for (int i = 1; i <= l; i++) {
@@ -1972,7 +1978,7 @@ public class bfbasic {
   public static void usage() {
     System.out.println();
     System.out.println("Usage:");
-    System.out.println("    bfbasic [-c] [-d[d[d]]] [-O#] [-w [#]] FILE[.bas] [[-o] FILE] [-?]");
+    System.out.println("    bfbasic [-c] [-d[d[d]]] [-O#] [-t] [-w [#]] FILE[.bas] [[-o] FILE] [-?]");
     System.out.println();
     System.out.println("Where: ");
     System.out.println("    -c           Treat newline as CRLF, default: LF");
