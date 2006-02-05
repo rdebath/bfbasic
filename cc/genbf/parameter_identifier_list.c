@@ -18,18 +18,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>
-
 #include "../genbf.h"
 #include "generator.h"
 
 void genbf_parameter_identifier_list(struct parameter_identifier_list *a)
 {
     /* there is currently no support for varargs */
-    if (a->varargs) {
-        fprintf(stderr, "C2BF does not currently support varargs.\n");
-        exit(1);
-    }
+    if (a->varargs)
+        ERROR("parameter_identifier_list", "Varargs are not currently supported.\n");
     
     genbf_identifier_list(a->v);
 }

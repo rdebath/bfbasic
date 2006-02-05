@@ -1074,7 +1074,7 @@ declarator2
 	| declarator2 '(' parameter_identifier_list ')'
           {
             $$ = (struct declarator2 *) malloc(sizeof(struct declarator2));
-            $$->type = _FUNC;
+            $$->type = _FUNC_OLD_STYLE;
             $$->v1._declarator2 = $1;
             $$->v2._parameter_identifier_list = $3;
           }

@@ -18,8 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>
-
 #include "../genbf.h"
 #include "generator.h"
 
@@ -30,7 +28,7 @@ void genbf_function_definition(struct function_definition *a)
     /* FIXME: this should store a list of declared functions and refer to that
      * for function calls */
     
-    /* the tree here should look like this:
+    /* the tree here should look like this for a standard definition:
        -function_definition
        |-declarator (v2) (guaranteed)
        ||
@@ -43,25 +41,48 @@ void genbf_function_definition(struct function_definition *a)
        ||||-identifier (v1._identifier)
        |||||v is the function name
        |||
-       |||-parameter_identifier_list (v2._parameter_type_list) (_FUNC)
+       |||-parameter_type_list (v2._parameter_type_list) (_FUNC_BY_TYPE)
        ||||these must be pushed to stack
        |
        |-function_body (v3)
+       ||(has_declaration_list must be 0)
+       ||
+       ||-compound_statement (v2)
+       
+       or like this for an olde-style definition (not yet supported):
+       -function_definition
+       |-declarator (v2) (guaranteed)
+       ||
+       ||-declarator2 (v2) (guaranteed)
+       |||(type must be _FUNC_OLD_STYLE)
+       |||
+       |||-declarator2 (v1._declarator2)
+       ||||(type must be _IDENTIFIER)
+       ||||
+       ||||-identifier (v1._identifier)
+       |||||v is the function name
+       |||
+       |||-parameter_identifier_list (v2._parameter_identifier_list) (_FUNC_OLD_STYLE)
+       ||||these must correspond to the declaration_list below
+       |
+       |-function_body (v3)
+       ||(has_declaration_list must be 1)
+       ||
+       ||-declaration_list (v1)
+       |||these must be pushed onto the stack
+       ||
+       ||-compound_statement (v2)
        */
     
     decla = a->v2->v2;
     /* decla must have type _SIMPLE_FUNC or _FUNC_BY_TYPE */
-    if (decla->type != _SIMPLE_FUNC && decla->type != _FUNC_BY_TYPE) {
-        fprintf(stderr, "Invalid function definition!\n");
-        exit(1);
-    }
+    if (decla->type != _SIMPLE_FUNC && decla->type != _FUNC_BY_TYPE)
+        ERROR("function_definition", "Invalid function definition!\n");
     
     declb = decla->v1._declarator2;
     /* declb must have type _IDENTIFIER */
-    if (declb->type != _IDENTIFIER) {
-        fprintf(stderr, "Invalid function definition!\n");
-        exit(1);
-    }
+    if (declb->type != _IDENTIFIER)
+        ERROR("function_definition", "Invalid function definition!\n");
     
     /* now we can start the block */
     pushNamedBlock(declb->v1._identifier->v);
@@ -71,5 +92,10 @@ void genbf_function_definition(struct function_definition *a)
     if (decla->type != _SIMPLE_FUNC)
         genbf_parameter_type_list(decla->v2._parameter_type_list);
     
-    genbf_function_body(a->v3);
+    if (a->v3->has_declaration_list)
+        ERROR("function_definition", "Invalid function definition!\n");
+    
+    /* FIXME: this should transmit down in some way whether the function needs
+     * to return */
+    genbf_compound_statement(a->v3->v2);
 }

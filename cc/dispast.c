@@ -286,7 +286,7 @@ void disp_declarator2(int spc, struct declarator2 *a)
             SPC; printf(")\n");
             break;
             
-        case _FUNC:
+        case _FUNC_OLD_STYLE:
             disp_declarator2(spc+1, a->v1._declarator2);
             SPC; printf("(\n");
             disp_parameter_identifier_list(spc+1, a->v2._parameter_identifier_list);
@@ -629,7 +629,7 @@ void disp_logical_or_expr(int spc, struct logical_or_expr *a)
     SSPC; printf("-logical_or_expr\n");
     if (!a->end) {
         disp_logical_or_expr(spc+1, a->v1);
-        SPC; printf("&&\n");
+        SPC; printf("||\n");
     }
     disp_logical_and_expr(spc+1, a->v2);
 }
@@ -821,7 +821,6 @@ void disp_relational_expr(int spc, struct relational_expr *a)
             SPC; printf(">=\n");
             disp_shift_expr(spc+1, a->v2);
             break;
-            
     }
 }
 

@@ -24,4 +24,5 @@
 void genbf_file(struct file *a)
 {
     genbf_external_definition_list(a->v);
+    printf("\n");
 }

@@ -18,10 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>
-
 #include "../genbf.h"
 #include "generator.h"
+
 void genbf_parameter_declaration(struct parameter_declaration *a)
 {
     /* the tree here should look like this:
@@ -36,10 +35,8 @@ void genbf_parameter_declaration(struct parameter_declaration *a)
        ||-declarator2 (v2) (guaranteed)
        |||genbf_declarator2_get_identifier is used to find the identifier
        */
-    if (a->type != _DECLARATION) {
-        fprintf(stderr, "Type-name parameters are not yet supported.\n");
-        exit(1);
-    }
+    if (a->type != _DECLARATION)
+        ERROR("parameter_declaration", "Type name parameters are not yet supported.\n");
     
     pushVar(genbf_declarator2_get_identifier(a->v2->v2), 1);
 }

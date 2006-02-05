@@ -2,10 +2,18 @@
 #define GENERATOR_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define UNIMPL(x) \
 { \
     fprintf(stderr, "Unimplemented generation: %s\n", x); \
+    exit(1); \
+}
+
+#define ERROR(x, y) \
+{ \
+    fprintf(stderr, "ERROR in generation %s: %s\n", x, y); \
+    exit(1); \
 }
 
 #define NEW(x, y) \
@@ -16,6 +24,12 @@
         exit(1); \
     } \
 }
+
+#define BF_PUSH printf(">>+>>>"); fflush(stdout)
+#define PUSH_TEMP tempstack++; BF_PUSH
+#define BF_POP printf("<<<-<<"); fflush(stdout)
+#define POP_TEMP tempstack--; BF_POP
+#define POP_TEMPS for (; tempstack > 0; tempstack--) BF_POP
 
 /* struct block holds information on what block of code we're in, how many
  * variables it uses, and how deep the stack is */
