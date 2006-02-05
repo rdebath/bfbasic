@@ -65,6 +65,7 @@ void genbf_function_definition(struct function_definition *a)
     
     /* now we can start the block */
     pushNamedBlock(declb->v1._identifier->v);
+    outBlock();
     
     /* and push all the parameter_identifier_list variables on */
     if (decla->type != _SIMPLE_FUNC)
