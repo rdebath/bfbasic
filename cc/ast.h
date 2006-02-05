@@ -18,6 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef AST_H
+#define AST_H
+
 /* valid typesof nodes: */
 #define _ABSTRACT_DECLARATOR       85
 #define _ADD                       29
@@ -688,3 +691,5 @@ struct unary_operator {
     int type;
 };
 void disp_unary_operator(int spc, struct unary_operator *a);
+
+#endif
