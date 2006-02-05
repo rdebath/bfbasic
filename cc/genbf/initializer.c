@@ -1,5 +1,5 @@
 #include "../genbf.h"
 #include "generator.h"
-void genbf_initializer(int spc, struct initializer *a)
+void genbf_initializer(struct initializer *a)
 { UNIMPL("initializer"); }
 

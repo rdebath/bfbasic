@@ -1,66 +1,89 @@
+/*
+ * Copyright (c) 2006  Gregor Richards
+ * 
+ * This file is part of C2BF.
+ * 
+ * C2BF is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * C2BF is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with C2BF; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include "ast.h"
 
-void genbf_abstract_declarator(int spc, struct abstract_declarator *a);
-void genbf_abstract_declarator2(int spc, struct abstract_declarator2 *a);
-void genbf_additive_expr(int spc, struct additive_expr *a);
-void genbf_and_expr(int spc, struct and_expr *a);
-void genbf_argument_expr_list(int spc, struct argument_expr_list *a);
-void genbf_assignment_expr(int spc, struct assignment_expr *a);
-void genbf_assignment_operator(int spc, struct assignment_operator *a);
-void genbf_cast_expr(int spc, struct cast_expr *a);
-void genbf_compound_statement(int spc, struct compound_statement *a);
-void genbf_conditional_expr(int spc, struct conditional_expr *a);
-void genbf_declarator(int spc, struct declarator *a);
-void genbf_declarator2(int spc, struct declarator2 *a);
-void genbf_declaration(int spc, struct declaration *a);
-void genbf_declaration_list(int spc, struct declaration_list *a);
-void genbf_declaration_specifiers(int spc, struct declaration_specifiers *a);
-void genbf_enum_specifier(int spc, struct enum_specifier *a);
-void genbf_enumerator(int spc, struct enumerator *a);
-void genbf_enumerator_list(int spc, struct enumerator_list *a);
-void genbf_equality_expr(int spc, struct equality_expr *a);
-void genbf_exclusive_or_expr(int spc, struct exclusive_or_expr *a);
-void genbf_expr(int spc, struct expr *a);
-void genbf_expression_statement(int spc, struct expression_statement *a);
-void genbf_external_definition(int spc, struct external_definition *a);
-void genbf_external_definition_list(int spc, struct external_definition_list *a);
-void genbf_file(int spc, struct file *a);
-void genbf_function_body(int spc, struct function_body *a);
-void genbf_function_definition(int spc, struct function_definition *a);
-void genbf_identifier(int spc, struct identifier *a);
-void genbf_identifier_list(int spc, struct identifier_list *a);
-void genbf_inclusive_or_expr(int spc, struct inclusive_or_expr *a);
-void genbf_init_declarator(int spc, struct init_declarator *a);
-void genbf_init_declarator_list(int spc, struct init_declarator_list *a);
-void genbf_initializer(int spc, struct initializer *a);
-void genbf_initializer_list(int spc, struct initializer_list *a);
-void genbf_iteration_statement(int spc, struct iteration_statement *a);
-void genbf_jump_statement(int spc, struct jump_statement *a);
-void genbf_labeled_statement(int spc, struct labeled_statement *a);
-void genbf_logical_and_expr(int spc, struct logical_and_expr *a);
-void genbf_logical_or_expr(int spc, struct logical_or_expr *a);
-void genbf_multiplicative_expr(int spc, struct multiplicative_expr *a);
-void genbf_parameter_declaration(int spc, struct parameter_declaration *a);
-void genbf_parameter_identifier_list(int spc, struct parameter_identifier_list *a);
-void genbf_parameter_list(int spc, struct parameter_list *a);
-void genbf_parameter_type_list(int spc, struct parameter_type_list *a);
-void genbf_pointer(int spc, struct pointer *a);
-void genbf_postfix_expr(int spc, struct postfix_expr *a);
-void genbf_primary_expr(int spc, struct primary_expr *a);
-void genbf_relational_expr(int spc, struct relational_expr *a);
-void genbf_selection_statement(int spc, struct selection_statement *a);
-void genbf_shift_expr(int spc, struct shift_expr *a);
-void genbf_statement(int spc, struct statement *a);
-void genbf_statement_list(int spc, struct statement_list *a);
-void genbf_storage_class_specifier(int spc, struct storage_class_specifier *a);
-void genbf_struct_declaration(int spc, struct struct_declaration *a);
-void genbf_struct_declaration_list(int spc, struct struct_declaration_list *a);
-void genbf_struct_declarator(int spc, struct struct_declarator *a);
-void genbf_struct_declarator_list(int spc, struct struct_declarator_list *a);
-void genbf_struct_or_union(int spc, struct struct_or_union *a);
-void genbf_struct_or_union_specifier(int spc, struct struct_or_union_specifier *a);
-void genbf_type_name(int spc, struct type_name *a);
-void genbf_type_specifier(int spc, struct type_specifier *a);
-void genbf_type_specifier_list(int spc, struct type_specifier_list *a);
-void genbf_unary_expr(int spc, struct unary_expr *a);
-void genbf_unary_operator(int spc, struct unary_operator *a);
+void genbf_abstract_declarator(struct abstract_declarator *a);
+void genbf_abstract_declarator2(struct abstract_declarator2 *a);
+void genbf_additive_expr(struct additive_expr *a);
+void genbf_and_expr(struct and_expr *a);
+void genbf_argument_expr_list(struct argument_expr_list *a);
+void genbf_assignment_expr(struct assignment_expr *a);
+void genbf_assignment_operator(struct assignment_operator *a);
+void genbf_cast_expr(struct cast_expr *a);
+void genbf_compound_statement(struct compound_statement *a);
+void genbf_conditional_expr(struct conditional_expr *a);
+void genbf_declarator(struct declarator *a);
+
+void genbf_declarator2(struct declarator2 *a);
+char *genbf_declarator2_get_identifier(struct declarator2 *a);
+
+void genbf_declaration(struct declaration *a);
+void genbf_declaration_list(struct declaration_list *a);
+void genbf_declaration_specifiers(struct declaration_specifiers *a);
+void genbf_enum_specifier(struct enum_specifier *a);
+void genbf_enumerator(struct enumerator *a);
+void genbf_enumerator_list(struct enumerator_list *a);
+void genbf_equality_expr(struct equality_expr *a);
+void genbf_exclusive_or_expr(struct exclusive_or_expr *a);
+void genbf_expr(struct expr *a);
+void genbf_expression_statement(struct expression_statement *a);
+void genbf_external_definition(struct external_definition *a);
+void genbf_external_definition_list(struct external_definition_list *a);
+void genbf_file(struct file *a);
+void genbf_function_body(struct function_body *a);
+void genbf_function_definition(struct function_definition *a);
+void genbf_identifier(struct identifier *a);
+void genbf_identifier_list(struct identifier_list *a);
+void genbf_inclusive_or_expr(struct inclusive_or_expr *a);
+void genbf_init_declarator(struct init_declarator *a);
+void genbf_init_declarator_list(struct init_declarator_list *a);
+void genbf_initializer(struct initializer *a);
+void genbf_initializer_list(struct initializer_list *a);
+void genbf_iteration_statement(struct iteration_statement *a);
+void genbf_jump_statement(struct jump_statement *a);
+void genbf_labeled_statement(struct labeled_statement *a);
+void genbf_logical_and_expr(struct logical_and_expr *a);
+void genbf_logical_or_expr(struct logical_or_expr *a);
+void genbf_multiplicative_expr(struct multiplicative_expr *a);
+void genbf_parameter_declaration(struct parameter_declaration *a);
+void genbf_parameter_identifier_list(struct parameter_identifier_list *a);
+void genbf_parameter_list(struct parameter_list *a);
+void genbf_parameter_type_list(struct parameter_type_list *a);
+void genbf_pointer(struct pointer *a);
+void genbf_postfix_expr(struct postfix_expr *a);
+void genbf_primary_expr(struct primary_expr *a);
+void genbf_relational_expr(struct relational_expr *a);
+void genbf_selection_statement(struct selection_statement *a);
+void genbf_shift_expr(struct shift_expr *a);
+void genbf_statement(struct statement *a);
+void genbf_statement_list(struct statement_list *a);
+void genbf_storage_class_specifier(struct storage_class_specifier *a);
+void genbf_struct_declaration(struct struct_declaration *a);
+void genbf_struct_declaration_list(struct struct_declaration_list *a);
+void genbf_struct_declarator(struct struct_declarator *a);
+void genbf_struct_declarator_list(struct struct_declarator_list *a);
+void genbf_struct_or_union(struct struct_or_union *a);
+void genbf_struct_or_union_specifier(struct struct_or_union_specifier *a);
+void genbf_type_name(struct type_name *a);
+void genbf_type_specifier(struct type_specifier *a);
+void genbf_type_specifier_list(struct type_specifier_list *a);
+void genbf_unary_expr(struct unary_expr *a);
+void genbf_unary_operator(struct unary_operator *a);

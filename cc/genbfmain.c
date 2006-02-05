@@ -27,6 +27,6 @@ struct file *ast_root;
 int main()
 {
     if (yyparse() == 0) {
-        genbf_file(1, ast_root);
+        genbf_file(ast_root);
     }
 }

@@ -1,5 +1,5 @@
 #include "../genbf.h"
 #include "generator.h"
-void genbf_declarator(int spc, struct declarator *a)
+void genbf_declarator(struct declarator *a)
 { UNIMPL("declarator"); }
 

@@ -67,7 +67,8 @@ type_name.o \
 type_specifier.o \
 type_specifier_list.o \
 unary_expr.o \
-unary_operator.o
+unary_operator.o \
+generator.o
 
 all: libgenbf.a
 

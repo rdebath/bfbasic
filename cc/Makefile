@@ -17,7 +17,7 @@ c2bf-dispast: $(DISPAST_OBJS)
 c2bf-cc: $(CC_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(CC_OBJS) -o $@
 
-genbf/libgenbf.a:
+genbf/libgenbf.a: genbf/*.c
 	cd genbf ; $(MAKE)
 
 .PREFIXES: .y .l .c .o

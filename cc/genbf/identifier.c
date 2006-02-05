@@ -1,5 +1,5 @@
 #include "../genbf.h"
 #include "generator.h"
-void genbf_identifier(int spc, struct identifier *a)
+void genbf_identifier(struct identifier *a)
 { UNIMPL("identifier"); }
 
