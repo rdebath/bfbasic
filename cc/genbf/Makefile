@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=
+CFLAGS=-O2 -g
 
 AR=ar
 ARFLAGS=rcu

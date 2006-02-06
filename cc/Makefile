@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=
-LDFLAGS=-O2 -g
+CFLAGS=-O2 -g
+LDFLAGS=
 
 LEX=flex
 
