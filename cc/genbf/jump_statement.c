@@ -32,15 +32,17 @@ void genbf_jump_statement(struct jump_statement *a)
             if (a->has_expr) {
                 genbf_expr(a->v._expr);
                 /* this expression is the return address, so put it in place */
-                bd = blockDepth() + tempstack;
+                bd = blockDepth() + tempstack - 1;
                 
-                printf("[");
-                for (i = 0; i < bd; i++)
-                    printf("<<<<<");
-                printf("+");
-                for (i = 0; i < bd; i++)
-                    printf(">>>>>");
-                printf("-]");
+                if (bd != 0) {
+                    printf("[");
+                    for (i = 0; i < bd; i++)
+                        printf("<<<<<");
+                    printf("+");
+                    for (i = 0; i < bd; i++)
+                        printf(">>>>>");
+                    printf("-]");
+                }
                 
                 POP_TEMP;
                 fflush(stdout);

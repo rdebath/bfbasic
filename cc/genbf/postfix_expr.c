@@ -65,6 +65,7 @@ void genbf_postfix_expr(struct postfix_expr *a)
                 }
                 pushCall(f);
                 outBlock();
+                tempstack++;
             }
             break;
             

@@ -1,6 +1,6 @@
 #!/bin/bash
 export DIR="`dirname $0`"
-export PATH="$DIR/../cc:$DIR/../ld:$DIR/../1tox:$PATH"
+export PATH="$DIR/../cc:$DIR/../ld:$DIR/../1tox:$DIR/../strip:$PATH"
 
 # Step one: list of files
 export CFILES=""
@@ -40,5 +40,5 @@ done
 
 # Step three: put it all together
 cat $OFILES $DIR/../ld/__start.o | c2bf-ld > a.b.1
-$FILTER a.b.1 > a.b
+$FILTER a.b.1 | c2bf-strip > a.b
 rm -f $TFILES a.b.1
