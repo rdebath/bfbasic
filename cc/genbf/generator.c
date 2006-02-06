@@ -72,11 +72,6 @@ void popNamedBlock()
     
     /* this one has num = 0, pop it */
     popBlock();
-    
-    if (!curblock) {
-        fprintf(stderr, "Internal compiler error 3 in popNamedBlock()\n");
-        exit(1);
-    }
 }
 
 /* popBlock
@@ -172,6 +167,8 @@ void popVar()
         fprintf(stderr, "Internal compiler error in popVar()\n");
         exit(1);
     }
+    
+    BF_POP;
     
     free(curvar->name);
     

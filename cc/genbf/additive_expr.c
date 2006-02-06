@@ -23,26 +23,22 @@
 
 void genbf_additive_expr(struct additive_expr *a)
 {
-    switch (a->type) {
-        case _MULTIPLICATIVE_EXPR:
-            genbf_multiplicative_expr(a->v1._multiplicative_expr);
-            break;
-            
-        /* case _ADD:
-            genbf_additive_expr(a->v1._additive_expr);
-            SPC; printf("+\n");
-            genbf_multiplicative_expr(a->v1._multiplicative_expr);
-            break;
-            
-        case _SUBTRACT:
-            genbf_additive_expr(a->v1._additive_expr);
-            SPC; printf("-\n");
-            genbf_multiplicative_expr(a->v1._multiplicative_expr);
-            break; */
-            
-        default:
-            UNIMPL("additive_expr");
+    if (a->type == _MULTIPLICATIVE_EXPR) {
+        genbf_multiplicative_expr(a->v1._multiplicative_expr);
+        return;
     }
+    
+    /* generate the left and right side as temps, then do the add or subtract */
+    genbf_additive_expr(a->v1._additive_expr);
+    genbf_multiplicative_expr(a->v2);
+    if (a->type == _ADD) {
+        /* I should be on top of operand 2 */
+        printf("[<<<<<+>>>>>-]");
+    } else if (a->type == _SUBTRACT) {
+        printf("[<<<<<->>>>>-]");
+    }
+    POP_TEMP;
+    fflush(stdout);
 }
 
 char *genbf_additive_expr_get_primary(int type, struct additive_expr *a)

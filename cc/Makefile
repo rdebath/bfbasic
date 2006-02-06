@@ -7,7 +7,7 @@ LEX=flex
 YACC=yacc
 
 DISPAST_OBJS=dispast.o gram.o main.o scan.o 
-CC_OBJS=gram.o genbfmain.o scan.o genbf/libgenbf.a
+CC_OBJS=dispast.o gram.o genbfmain.o scan.o genbf/libgenbf.a
 
 all: c2bf-dispast c2bf-cc
 

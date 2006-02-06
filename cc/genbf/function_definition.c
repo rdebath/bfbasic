@@ -99,12 +99,25 @@ void genbf_function_definition(struct function_definition *a)
      * to return */
     genbf_compound_statement(a->v3->v2);
     
+    /* now we need to pop the block */
+    popNamedBlock();
+    
     /* now the stack should look like this:
      * {return address}{return code}
      * so, move the return address into the walk cell, and use it to set the
      * return */
-    printf("<<<-<<[<<+>>-]>>>>>[<<<<<+>>>>>-]"
+    /*printf("<<<-<<[<<+>>-]>>>>>[<<<<<+>>>>>-]"
            "<<<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
+           ">[>>>>>+<<<<<-]>>>>>"
+           "[[>>>>>+<<<<<-]>>>>>-]"
+           "<<<+"
+           ">>[>>>>>]<<"); */
+    
+    /* in reality, there's no support for return codes yet, so it looks like this:
+     * {return address}
+     */
+    printf("[<<+>>-]<<<->[<<<<<+>>>>>-]"
+           "<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
            ">[>>>>>+<<<<<-]>>>>>"
            "[[>>>>>+<<<<<-]>>>>>-]"
            "<<<+"

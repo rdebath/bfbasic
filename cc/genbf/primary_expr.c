@@ -28,6 +28,35 @@ void genbf_primary_expr(struct primary_expr *a)
     int i, v;
     
     switch (a->type) {
+        case _IDENTIFIER:
+            PUSH_TEMP;
+            /* where is this variable? */
+            v = varDepth(a->v._identifier->v);
+            /* FIXME: this needs to support a whole range of other idents */
+            if (v == -1)
+                ERROR("primary_expr", "Undefined identifier.");
+            v += tempstack;
+            
+            /* now go and get it */
+            printf("[-]");
+            for (i = 0; i < v; i++)
+                printf("<<<<<");
+            /* dup */
+            printf("[>>>+>+<<<<-]>>>[<<<+>>>-]>[");
+            /* carry it up */
+            for (i = 0; i < v; i++)
+                printf(">>>>>");
+            printf("+");
+            for (i = 0; i < v; i++)
+                printf("<<<<<");
+            printf("-]");
+            /* and put it in place */
+            for (i = 0; i < v; i++)
+                printf(">>>>>");
+            printf("[<<<<+>>>>-]<<<<");
+            fflush(stdout);
+            break;
+        
         case _CONSTANT:
             /* FIXME: this is a ridiculous way to generate a constant ... */
             PUSH_TEMP;
