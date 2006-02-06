@@ -98,4 +98,16 @@ void genbf_function_definition(struct function_definition *a)
     /* FIXME: this should transmit down in some way whether the function needs
      * to return */
     genbf_compound_statement(a->v3->v2);
+    
+    /* now the stack should look like this:
+     * {return address}{return code}
+     * so, move the return address into the walk cell, and use it to set the
+     * return */
+    printf("<<<-<<[<<+>>-]>>>>>[<<<<<+>>>>>-]"
+           "<<<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
+           ">[>>>>>+<<<<<-]>>>>>"
+           "[[>>>>>+<<<<<-]>>>>>-]"
+           "<<<+"
+           ">>[>>>>>]<<");
+    fflush(stdout);
 }

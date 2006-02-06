@@ -43,10 +43,14 @@ void staticizeBlock(struct block *tostat)
         switch (code[i]) {
             case '(':
                 /* find the end and null it */
-                for (j = i + 1; code[j] && code[j] != '\0'; code[j]++);
+                for (j = i + 1; code[j] && code[j] != ')'; j++);
                 if (!code[j]) {
                     /* no ending ) ! */
-                    fprintf(stderr, "Invalid reference %s\n", code + i);
+                    fprintf(stderr, "Invalid reference %s"
+                            " at column %d"
+                            " in label %s\n", code + i,
+                            i,
+                            tostat->label);
                     exit(1);
                 }
                 code[j] = '\0';
@@ -58,7 +62,11 @@ void staticizeBlock(struct block *tostat)
                         /* just put a pointer */
                         num = blockNum(code + i + 1);
                         if (num == -1) {
-                            fprintf(stderr, "Undefined symbol: %s\n", code + i + 1);
+                            fprintf(stderr, "Undefined symbol: '%s'"
+                                    " at column %d"
+                                    " in label %s\n", code + i + 1,
+                                    i + 1,
+                                    tostat->label);
                             exit(1);
                         }
                         
@@ -83,17 +91,21 @@ void staticizeBlock(struct block *tostat)
                          * a 1 */
                         num = blockNum(code + i);
                         if (num == -1) {
-                            fprintf(stderr, "Undefined symbol: %s\n", code + i + 1);
+                            fprintf(stderr, "Undefined symbol: '%s'"
+                                    " at column %d"
+                                    " in label %s\n", code + i,
+                                    i,
+                                    tostat->label);
                             exit(1);
                         }
                         
-                        codelen += 24 + (5 * num);
+                        codelen += 25 + (5 * num);
                         newcode = (char *) realloc(newcode, codelen);
                         if (!newcode) { perror("realloc"); exit(1); }
                         
                         /* step one: get back to the beginning of the stack */
-                        sprintf(newcode + o, "<<<[<<<<<]>>");
-                        o += 12;
+                        sprintf(newcode + o, "<<<[<<<<<]>>>");
+                        o += 13;
                         
                         /* step two: the right number of >s */
                         for (; num > 0; num--) {
@@ -110,7 +122,7 @@ void staticizeBlock(struct block *tostat)
                         o += 11;
                 }
                 /* now we can continue */
-                i = j + 1;
+                i = j;
                 break;
             
             default:

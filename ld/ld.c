@@ -143,7 +143,7 @@ int main()
     while (cur->next) cur = cur->next;
     
     while (cur) {
-        printf(">>>>>[-");
+        printf(">>>>>[->>[>>>>>]<<");
         printf(cur->code);
         printf("<<<[<<<<<]>>>");
         for (i = 0; i < cur->num; i++) {
@@ -155,7 +155,7 @@ int main()
     }
     
     /* finally, end our magic loop */
-    printf("]");
+    printf("<<<[<<<<<]<<]");
     
     return 0;
 }
