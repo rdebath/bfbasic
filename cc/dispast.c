@@ -91,13 +91,13 @@ void disp_additive_expr(int spc, struct additive_expr *a)
         case _ADD:
             disp_additive_expr(spc+1, a->v1._additive_expr);
             SPC; printf("+\n");
-            disp_multiplicative_expr(spc+1, a->v1._multiplicative_expr);
+            disp_multiplicative_expr(spc+1, a->v2);
             break;
             
         case _SUBTRACT:
             disp_additive_expr(spc+1, a->v1._additive_expr);
             SPC; printf("-\n");
-            disp_multiplicative_expr(spc+1, a->v1._multiplicative_expr);
+            disp_multiplicative_expr(spc+1, a->v2);
             break;
     }
 }
