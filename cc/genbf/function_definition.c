@@ -104,20 +104,11 @@ void genbf_function_definition(struct function_definition *a)
     
     /* now the stack should look like this:
      * {return address}{return code}
+     * but the return code is actually above the top of the stack
      * so, move the return address into the walk cell, and use it to set the
      * return */
-    /*printf("<<<-<<[<<+>>-]>>>>>[<<<<<+>>>>>-]"
+    printf("[<<+>>-]>>>>>[<<<<<+>>>>>-]"
            "<<<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
-           ">[>>>>>+<<<<<-]>>>>>"
-           "[[>>>>>+<<<<<-]>>>>>-]"
-           "<<<+"
-           ">>[>>>>>]<<"); */
-    
-    /* in reality, there's no support for return codes yet, so it looks like this:
-     * {return address}
-     */
-    printf("[<<+>>-]<<<->[<<<<<+>>>>>-]"
-           "<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
            ">[>>>>>+<<<<<-]>>>>>"
            "[[>>>>>+<<<<<-]>>>>>-]"
            "<<<+"

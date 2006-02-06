@@ -48,6 +48,23 @@ void pushBlock()
     curblock->stack = 0;
 }
 
+/* pushCall
+ * input: the function to call
+ * output: none
+ * effect: the function is called with the return address of pushBlock()
+ */
+void pushCall(const char *func)
+{
+    if (!curblock) {
+        fprintf(stderr, "Internal compiler error in pushCall()\n");
+        exit(1);
+    }
+    
+    printf("(*%s!%d)(%s)", curblock->name, curblock->num + 1, func);
+    
+    pushBlock();
+}
+
 /* popNamedBlock
  * input: none
  * output: none
@@ -205,4 +222,26 @@ int varDepth(const char *name)
     
     /* no match! */
     return -1;
+}
+
+/* blockDepth
+ * input: none
+ * output: the depth of the current block
+ * effect: none
+ */
+int blockDepth()
+{
+    int depth = 0;
+    struct var *cur;
+    
+    /* start with the top */
+    cur = curvar;
+    
+    while (cur) {
+        /* add the current depth */
+        depth += cur->depth;
+        cur = cur->next;
+    }
+    
+    return depth;
 }

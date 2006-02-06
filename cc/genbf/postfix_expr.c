@@ -58,7 +58,14 @@ void genbf_postfix_expr(struct postfix_expr *a)
             f = p_e->v._identifier->v;
             
 #include "builtin_functions.c"
-            else ERROR("postfix_expr", "Non-builtin function calls aren't implemented yet.");
+            else {
+                /* this is a real function call */
+                if (a->type == _FCALL) {
+                    genbf_argument_expr_list(a->v2._argument_expr_list);
+                }
+                pushCall(f);
+                outBlock();
+            }
             break;
             
         /* case _ARRAY_REF:

@@ -58,6 +58,13 @@ void pushNamedBlock(const char *name);
  */
 void pushBlock();
 
+/* pushCall
+ * input: the function to call
+ * output: none
+ * effect: the function is called with the return address of pushBlock()
+ */
+void pushCall(const char *func);
+
 /* popNamedBlock
  * input: none
  * output: none
@@ -113,5 +120,12 @@ void popVar();
  * effect: none
  */
 int varDepth(const char *name);
+
+/* blockDepth
+ * input: none
+ * output: the depth of the current block
+ * effect: none
+ */
+int blockDepth();
 
 #endif
