@@ -29,4 +29,6 @@ int main()
     if (yyparse() == 0) {
         genbf_file(ast_root);
     }
+    
+    return 0;
 }
