@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2006  Gregor Richards
+ * 
+ * This file is part of C2BF.
+ * 
+ * C2BF is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * C2BF is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with C2BF; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include <string.h>
 
 #include "generator.h"
@@ -164,11 +184,9 @@ void pushVar(const char *name, int width)
     NEW(curvar, struct var);
     
     curvar->next = prevvar;
-    if (prevvar) prevvar->depth = width;
-    
     curvar->name = strdup(name);
     if (!curvar->name) { perror("strdup"); exit(1); }
-    curvar->depth = 0;
+    curvar->width = width;
 }
 
 /* popVar
@@ -188,10 +206,7 @@ void popVar()
     BF_POP;
     
     free(curvar->name);
-    
     nextvar = curvar->next;
-    if (nextvar) nextvar->depth = 0;
-    
     free(curvar);
     curvar = nextvar;
 }
@@ -210,13 +225,11 @@ int varDepth(const char *name)
     cur = curvar;
     
     while (cur) {
-        /* add the current depth */
-        depth += cur->depth;
-        
         /* if it matches, return the current depth */
         if (!strcmp(cur->name, name))
             return depth;
         
+        depth += cur->width;
         cur = cur->next;
     }
     
@@ -239,7 +252,7 @@ int blockDepth()
     
     while (cur) {
         /* add the current depth */
-        depth += cur->depth;
+        depth += cur->width;
         cur = cur->next;
     }
     

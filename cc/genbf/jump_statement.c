@@ -35,6 +35,11 @@ void genbf_jump_statement(struct jump_statement *a)
                 bd = blockDepth() + tempstack - 1;
                 
                 if (bd != 0) {
+                    for (i = 0; i < bd; i++)
+                        printf("<<<<<");
+                    printf("[-]");
+                    for (i = 0; i < bd; i++)
+                        printf(">>>>>");
                     printf("[");
                     for (i = 0; i < bd; i++)
                         printf("<<<<<");
