@@ -152,7 +152,7 @@ void pushVar(const char *name, int width)
     NEW(curvar, struct var);
     
     curvar->next = prevvar;
-    prevvar->depth = width;
+    if (prevvar) prevvar->depth = width;
     
     curvar->name = strdup(name);
     if (!curvar->name) { perror("strdup"); exit(1); }

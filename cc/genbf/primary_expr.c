@@ -24,7 +24,43 @@
 #include "generator.h"
 
 void genbf_primary_expr(struct primary_expr *a)
-{ UNIMPL("primary_expr"); }
+{
+    int i, v;
+    
+    switch (a->type) {
+        case _CONSTANT:
+            /* FIXME: this is a ridiculous way to generate a constant ... */
+            PUSH_TEMP;
+            v = atoi(a->v._token);
+            if (v >= 0)
+                for (i = 0; i < v; i++)
+                    printf("+");
+            else
+                for (i = 0; i > v; i--)
+                    printf("-");
+            
+            fflush(stdout);
+            break;
+        
+        /*case _IDENTIFIER:
+            genbf_identifier(a->v._identifier);
+            break;
+            
+        case _CONSTANT:
+            SPC; printf("CONSTANT: %s\n", a->v._token);
+            break;
+            
+        case _STRING:
+            SPC; printf("STRING: %s\n", a->v._token);
+            break;
+            
+        case _EXPR:
+            genbf_expr(a->v._expr);
+            break;*/
+        default:
+            UNIMPL("primary_expr");
+    }
+}
 
 char *genbf_primary_expr_get_primary(int type, struct primary_expr *a)
 {

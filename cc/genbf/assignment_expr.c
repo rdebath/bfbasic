@@ -23,16 +23,61 @@
 
 void genbf_assignment_expr(struct assignment_expr *a)
 {
+    char *ident;
+    int i, d;
+    
     switch (a->type) {
         case _CONDITIONAL_EXPR:
             genbf_conditional_expr(a->v1._conditional_expr);
             break;
             
         case _ASSIGNMENT:
+            /* FIXME: only primitive assignments are supported thusfar */
+            ident = genbf_unary_expr_get_primary(_IDENTIFIER, a->v1._unary_expr);
+            if (!ident)
+                ERROR("assignment_expr", "Bad or unsupported assignment!");
+            
+            /* FIXME: only primitive (=) assignments :) */
+            if (a->v2->type != _ASSIGN)
+                ERROR("assignment_expr", "Only primitive assignments are supported thusfar.");
+            
+            genbf_assignment_expr(a->v3);
+            
+            /* now we have a value on top of the stack that we want to put in
+             * the variable */
+            d = varDepth(ident);
+            if (d == -1)
+                ERROR("assignment_expr", "Bad or uninitialized variable.");
+            d += tempstack;
+            
+            /* carry this value ... */
+            printf("[>>>>+<<<<-]>>>>");
+            
+            /* the proper distance */
+            printf("[");
+            for (i = 0; i < d; i++)
+                printf("<<<<<");
+            printf("+");
+            for (i = 0; i < d; i++)
+                printf(">>>>>");
+            printf("-]");
+            for (i = 0; i < d; i++)
+                printf("<<<<<");
+            /* then put it in place */
+            printf("<<<<[-]>>>>[<<<<+>>>>-]<<<<");
+            /* and come back */
+            for (i = 0; i < d; i++)
+                printf(">>>>>");
+            
+            fflush(stdout);
+            
+            /* then pop off the result of the expression */
+            POP_TEMP;
+            
             /*genbf_unary_expr(a->v1._unary_expr);
             genbf_assignment_operator(a->v2);
-            genbf_assignment_expr(a->v3);*/
-            UNIMPL("assignment_expr");
+            genbf_assignment_expr(a->v3);
+            UNIMPL("assignment_expr");*/
             break;
     }
 }

@@ -18,13 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../genbf.h"
-#include "generator.h"
-
-void genbf_init_declarator_list(struct init_declarator_list *a)
+void main()
 {
-    if (!a->end) {
-        genbf_init_declarator_list(a->v1);
-    }
-    genbf_init_declarator(a->v2);
+    int a;
+    a = 65;
+    asm(".");
 }

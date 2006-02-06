@@ -103,7 +103,6 @@ void genbf_postfix_expr(struct postfix_expr *a)
             break; */
             
         default:
-            printf("%d\n", a->type);
             UNIMPL("postfix_expr");
     }
 }

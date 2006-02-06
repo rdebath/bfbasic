@@ -230,6 +230,15 @@ void disp_conditional_expr(int spc, struct conditional_expr *a)
     }
 }
 
+void disp_declaration(int spc, struct declaration *a)
+{
+    SSPC; printf("-declaration\n");
+    disp_declaration_specifiers(spc+1, a->v1);
+    if (a->has_init_declarator_list) {
+        disp_init_declarator_list(spc+1, a->v2);
+    }
+}
+
 void disp_declaration_list(int spc, struct declaration_list *a)
 {
     SSPC; printf("-declaration_list\n");
@@ -237,6 +246,23 @@ void disp_declaration_list(int spc, struct declaration_list *a)
         disp_declaration_list(spc+1, a->v1);
     }
     disp_declaration(spc+1, a->v2);
+}
+
+void disp_declaration_specifiers(int spc, struct declaration_specifiers *a)
+{
+    SSPC; printf("-declaration_specifiers\n");
+    switch (a->type) {
+        case _STORAGE_CLASS_SPECIFIER:
+            disp_storage_class_specifier(spc+1, a->v1._storage_class_specifier);
+            break;
+            
+        case _TYPE_SPECIFIER:
+            disp_type_specifier(spc+1, a->v1._type_specifier);
+            break;
+    }
+    if (!a->end) {
+        disp_declaration_specifiers(spc+1, a->v2);
+    }
 }
 
 void disp_declarator(int spc, struct declarator *a)
@@ -292,32 +318,6 @@ void disp_declarator2(int spc, struct declarator2 *a)
             disp_parameter_identifier_list(spc+1, a->v2._parameter_identifier_list);
             SPC; printf(")\n");
             break;
-    }
-}
-
-void disp_declaration(int spc, struct declaration *a)
-{
-    SSPC; printf("-declaration\n");
-    disp_declaration_specifiers(spc+1, a->v1);
-    if (a->has_init_declarator_list) {
-        disp_init_declarator_list(spc+1, a->v2);
-    }
-}
-
-void disp_declaration_specifiers(int spc, struct declaration_specifiers *a)
-{
-    SSPC; printf("-declaration_specifiers\n");
-    switch (a->type) {
-        case _STORAGE_CLASS_SPECIFIER:
-            disp_storage_class_specifier(spc+1, a->v1._storage_class_specifier);
-            break;
-            
-        case _TYPE_SPECIFIER:
-            disp_type_specifier(spc+1, a->v1._type_specifier);
-            break;
-    }
-    if (!a->end) {
-        disp_declaration_specifiers(spc+1, a->v2);
     }
 }
 
