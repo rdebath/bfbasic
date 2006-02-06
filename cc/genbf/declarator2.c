@@ -29,7 +29,7 @@ char *genbf_declarator2_get_identifier(struct declarator2 *a)
 {
     switch (a->type) {
         case _IDENTIFIER:
-            return a->v1._identifier; /* here it is! */
+            return a->v1._identifier->v; /* here it is! */
             
         case _DECLARATOR:
             /* we need to recurse through this */
