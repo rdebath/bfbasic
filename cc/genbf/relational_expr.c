@@ -23,37 +23,44 @@
 
 void genbf_relational_expr(struct relational_expr *a)
 {
+    if (a->type == _SHIFT_EXPR) {
+        genbf_shift_expr(a->v1._shift_expr);
+        return;
+    }
+    
+    /* push the two operands */
+    genbf_relational_expr(a->v1._relational_expr);
+    genbf_shift_expr(a->v2);
+    
+    /* and do the comparison */
     switch (a->type) {
-        case _SHIFT_EXPR:
-            genbf_shift_expr(a->v1._shift_expr);
-            break;
-            
-        /* case _LESS:
-            genbf_relational_expr(a->v1._relational_expr);
-            SPC; printf("<\n");
-            genbf_shift_expr(a->v2);
+        case _LESS:
+            UNIMPL("relational_expr");
             break;
             
         case _GREATER:
-            genbf_relational_expr(a->v1._relational_expr);
-            SPC; printf(">\n");
-            genbf_shift_expr(a->v2);
+            UNIMPL("relational_expr");
             break;
             
         case _LE:
-            genbf_relational_expr(a->v1._relational_expr);
-            SPC; printf("<=\n");
-            genbf_shift_expr(a->v2);
+            /* layout:
+               O1 . . points temp O2 . . temp temp . . . temp temp
+               A point is given if O1 == O2 or if O1 < O2 */
+            /* first copy into temps */
+            printf("[>>+>+<<<-]>>[<<_>>-]<<<<<<<<[>>>>+>>>>+<<<<<<<<-]"
+                   ">>>>[<<<<+>>>>-]>>>>>"
+                   "[<->-<<<<<+>>>>[>>>>>+>+<<<<<<-]>>>>>>[<<<<<<+>>>>>>-]"
+                   "<[[-]<<<<<<<<<->>>>>>>>>]"
+                   "<<<<<<<<<[<+>-]>>>>>]"
+                   "<[-]<<<<<<<<[-]"
+                   ">>[<<+>>-]<<" /* finally, put the truth value in */);
+            fflush(stdout);
+            
             break;
             
         case _GE:
-            genbf_relational_expr(a->v1._relational_expr);
-            SPC; printf(">=\n");
-            genbf_shift_expr(a->v2);
-            break; */
-            
-        default:
             UNIMPL("relational_expr");
+            break;
     }
 }
 

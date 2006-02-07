@@ -60,6 +60,7 @@ void genbf_primary_expr(struct primary_expr *a)
         case _CONSTANT:
             /* FIXME: this is a ridiculous way to generate a constant ... */
             PUSH_TEMP;
+            printf("[-]");
             v = atoi(a->v._token);
             if (v >= 0)
                 for (i = 0; i < v; i++)
@@ -69,6 +70,10 @@ void genbf_primary_expr(struct primary_expr *a)
                     printf("-");
             
             fflush(stdout);
+            break;
+            
+        case _EXPR:
+            genbf_expr(a->v._expr);
             break;
         
         /*case _IDENTIFIER:
@@ -93,6 +98,9 @@ void genbf_primary_expr(struct primary_expr *a)
 
 char *genbf_primary_expr_get_primary(int type, struct primary_expr *a)
 {
+    /*if (a->type == _EXPR)
+        return genbf_expr_get_primary(type, a->v._expr);*/
+    
     if (type != a->type) return NULL;
     if (type == _IDENTIFIER)
         return a->v._identifier->v;

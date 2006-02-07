@@ -80,6 +80,7 @@ void pushCall(const char *func)
         exit(1);
     }
     
+    PUSH_TEMP;
     printf("(*%s!%d)(%s)", curblock->name, curblock->num + 1, func);
     
     pushBlock();

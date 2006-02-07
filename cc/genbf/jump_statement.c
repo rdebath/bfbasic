@@ -24,6 +24,7 @@
 void genbf_jump_statement(struct jump_statement *a)
 {
     int i, bd;
+    struct var *cur;
     
     switch (a->type) {
         case _RETURN:
@@ -50,6 +51,27 @@ void genbf_jump_statement(struct jump_statement *a)
                 }
                 
                 POP_TEMP;
+                /* pop off the rest of the variables */
+                for (i = 0; i < tempstack; i++)
+                    printf("<<<-<<");
+                cur = curvar;
+                while (cur) {
+                    for (i = 0; i < cur->width; i++)
+                        printf("<<<-<<");
+                    cur = cur->next;
+                }
+                
+                /* now the stack should look like this:
+                 * {return address}{return code}
+                 * but the return code is actually above the top of the stack
+                 * so, move the return address into the walk cell, and use it to set the
+                 * return */
+                printf("[<<+>>-]>>>>>[<<<<<+>>>>>-]"
+                       "<<<<<<<<[>[<<<<<+>>>>>-]<<<<<<]"
+                       ">[>>>>>+<<<<<-]>>>>>"
+                       "[[>>>>>+<<<<<-]>>>>>-]"
+                       "<<<+"
+                       ">>[>>>>>]<<!");
                 fflush(stdout);
             }
             break;

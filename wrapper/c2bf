@@ -7,6 +7,7 @@ export CFILES=""
 export OFILES=""
 export TFILES=""
 export FILTER="cat"
+export STRIP="cat"
 while [ "$#" != "0" ]
 do
     if [ "`echo $1 | grep '\.c$'`" ]
@@ -25,6 +26,10 @@ do
     then
         export FILTER="c2bf-1to32bit"
         
+    elif [ "$1" = "-strip" ]
+    then
+        export STRIP="c2bf-strip"
+        
     else
         echo "I don\'t know how to handle $1!"
     fi
@@ -40,5 +45,5 @@ done
 
 # Step three: put it all together
 cat $OFILES $DIR/../ld/__start.o | c2bf-ld > a.b.1
-$FILTER a.b.1 | c2bf-strip > a.b
+$FILTER a.b.1 | $STRIP > a.b
 rm -f $TFILES a.b.1

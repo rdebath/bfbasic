@@ -18,15 +18,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../genbf.h"
-#include "generator.h"
-
-int genbf_argument_expr_list(struct argument_expr_list *a)
+int fibo(int n)
 {
-    int cur = 1;
-    if (!a->end) {
-        cur += genbf_argument_expr_list(a->v1);
-    }
-    genbf_assignment_expr(a->v2);
-    return cur;
+    int a;
+    a = n - 1;
+    if (!a) return 1;
+    a = a - 1;
+    if (!a) return 1;
+    return fibo(n - 1) + fibo(a);
+}
+
+void main()
+{
+    int a;
+    a = fibo(11);
+    asm(".");
 }

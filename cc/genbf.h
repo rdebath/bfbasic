@@ -29,7 +29,7 @@ char *genbf_additive_expr_get_primary(int type, struct additive_expr *a);
 void genbf_and_expr(struct and_expr *a);
 char *genbf_and_expr_get_primary(int type, struct and_expr *a);
 
-void genbf_argument_expr_list(struct argument_expr_list *a);
+int genbf_argument_expr_list(struct argument_expr_list *a);
 
 void genbf_assignment_expr(struct assignment_expr *a);
 char *genbf_assignment_expr_get_primary(int type, struct assignment_expr *a);

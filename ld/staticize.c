@@ -124,6 +124,12 @@ void staticizeBlock(struct block *tostat)
                 /* now we can continue */
                 i = j;
                 break;
+                
+            case '!':
+                /* this symbol means "ignore any further input for this block" */
+                for (; code[i]; i++);
+                i--;
+                break;
             
             default:
                 newcode[o] = code[i];

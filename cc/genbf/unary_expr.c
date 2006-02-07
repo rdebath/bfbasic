@@ -28,6 +28,19 @@ void genbf_unary_expr(struct unary_expr *a)
             genbf_postfix_expr(a->v1._postfix_expr);
             break;
             
+        case _UNARY_OP:
+            switch (a->v1._unary_operator->type) {
+                case _LOGIC_NOT:
+                    genbf_cast_expr(a->v2);
+                    printf("<+>[<->[-]]<[>+<-]>");
+                    fflush(stdout);
+                    break;
+                    
+                default:
+                    UNIMPL("unary_operator");
+            }
+            break;
+            
         /* case _INC:
             SPC; printf("++\n");
             genbf_unary_expr(a->v1._unary_expr);

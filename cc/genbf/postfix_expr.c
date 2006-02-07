@@ -59,13 +59,15 @@ void genbf_postfix_expr(struct postfix_expr *a)
             
 #include "builtin_functions.c"
             else {
+                int topop = 0;
+                
                 /* this is a real function call */
-                if (a->type == _FCALL) {
-                    genbf_argument_expr_list(a->v2._argument_expr_list);
-                }
                 pushCall(f);
+                if (a->type == _FCALL) {
+                    topop = genbf_argument_expr_list(a->v2._argument_expr_list);
+                    tempstack -= topop; /* these aren't ours */
+                }
                 outBlock();
-                tempstack++;
             }
             break;
             
