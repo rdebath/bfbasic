@@ -61,7 +61,13 @@ void genbf_primary_expr(struct primary_expr *a)
             /* FIXME: this is a ridiculous way to generate a constant ... */
             PUSH_TEMP;
             printf("[-]");
-            v = atoi(a->v._token);
+            
+            /* constants can be either numbers or 'characters' */
+            if (a->v._token[0] == '\'') {
+                v = *genbf_parse_string(a->v._token);
+            } else {
+                v = atoi(a->v._token);
+            }
             if (v >= 0)
                 for (i = 0; i < v; i++)
                     printf("+");
