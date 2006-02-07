@@ -52,9 +52,6 @@ void genbf_relational_expr(struct relational_expr *a)
                    /* O1 . . points 0 O2 . . ? *0 */
                    "<[-]<<<<<"
                    "<<<[-]>>>[<<<+>>>-]>>");
-            POP_TEMP;
-            fflush(stdout);
-            
             break;
             
         case _GREATER:
@@ -71,10 +68,11 @@ void genbf_relational_expr(struct relational_expr *a)
                    /* O1 . . points 0 O2 . . ? *0 */
                    ">[-]<<<<<<"
                    "<<<[-]>>>[<<<+>>>-]>>");
-            POP_TEMP;
-            fflush(stdout);
             break;
     }
+    
+    POP_TEMP;
+    fflush(stdout);
 }
 
 char *genbf_relational_expr_get_primary(int type, struct relational_expr *a)
