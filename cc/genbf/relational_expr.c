@@ -35,14 +35,10 @@ void genbf_relational_expr(struct relational_expr *a)
     /* and do the comparison */
     switch (a->type) {
         case _LESS:
-            UNIMPL("relational_expr");
-            break;
-            
-        case _GREATER:
-            UNIMPL("relational_expr");
-            break;
-            
+            /* less is just a <= (b - 1) */
+            printf("-");
         case _LE:
+            /* FIXME: THIS IS THE ONLY TESTED RELATIONAL EXPRESSION! */
             /* layout:
                O1 . . points temp *O2 . . temp temp . . . temp temp
                A point is given if O1 == O2 or if O1 < O2 */
@@ -61,8 +57,22 @@ void genbf_relational_expr(struct relational_expr *a)
             
             break;
             
+        case _GREATER:
+            /* greater is just a >= (b + 1) */
+            printf("+");
         case _GE:
-            UNIMPL("relational_expr");
+            printf("[>>>+>+<<<<-]>>>[<<<+>>>-]<<<"
+                   /* O1 . . points 0 *O2 . . 0 O2 */
+                   "<<<<<[>>>>+>>>>+<<<<<<<<-]>>>>[<<<<+>>>>-]>>>>"
+                   /* O1 . . points 0 O2 . . *O1 O2 */
+                   "[->-[>>>>+>+<<<<<-]>>>>>[<<<<<+>>>>>-]<<<<<"
+                   "<<<<<+>>>>>[[-]<<<<<->>>>>]>>>>[<<<<+>>>>-]<<<<"
+                   "<<<<<[<+>-]>>>>]"
+                   /* O1 . . points 0 O2 . . ? *0 */
+                   ">[-]<<<<<<"
+                   "<<<[-]>>>[<<<+>>>-]>>");
+            POP_TEMP;
+            fflush(stdout);
             break;
     }
 }
