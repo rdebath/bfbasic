@@ -20,12 +20,8 @@
 
 int fibo(int n)
 {
-    int a;
-    a = n - 1;
-    if (!a) return 1;
-    a = a - 1;
-    if (!a) return 1;
-    return fibo(n - 1) + fibo(a);
+    if (n <= 2) return 1;
+    return fibo(n - 2) + fibo(n - 1);
 }
 
 void main()
