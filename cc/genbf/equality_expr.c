@@ -23,26 +23,31 @@
 
 void genbf_equality_expr(struct equality_expr *a)
 {
+    if (a->type == _RELATIONAL_EXPR) {
+        genbf_relational_expr(a->v1._relational_expr);
+        return;
+    }
+    
+    genbf_equality_expr(a->v1._equality_expr);
+    genbf_relational_expr(a->v2);
     switch (a->type) {
-        case _RELATIONAL_EXPR:
-            genbf_relational_expr(a->v1._relational_expr);
-            break;
-            
-        /* case _EQUAL:
-            genbf_equality_expr(a->v1._equality_expr);
-            SPC; printf("==\n");
-            genbf_relational_expr(a->v2);
+        case _EQUAL:
+            printf("<<<<<[>>>>+<<<<-]+"
+                   ">>>>>[<-<+>>-]"
+                   "<<[>>+<<-]"
+                   ">[<<<<->>>>[-]]>");
             break;
             
         case _NEQUAL:
-            genbf_equality_expr(a->v1._equality_expr);
-            SPC; printf("!=\n");
-            genbf_relational_expr(a->v2);
-            break; */
-            
-        default:
-            UNIMPL("equality_expr");
+            printf("<<<<<[>>>>+<<<<-]"
+                   ">>>>>[<-<+>>-]"
+                   "<<[>>+<<-]"
+                   ">[<<<<+>>>>[-]]>");
+            break;
     }
+    
+    POP_TEMP;
+    fflush(stdout);
 }
 
 char *genbf_equality_expr_get_primary(int type, struct equality_expr *a)
