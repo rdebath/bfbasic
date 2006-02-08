@@ -20,17 +20,23 @@
 
 /* BIG FAT NOTE: c2bf doesn't actually support this yet :) */
 
-void itoa(int n)
-{
-    int nd, nm;
-    nd = n / 10;
-    nm = n % 10;
-    if (nd) itoa(nd);
-    nm += '0';
-    asm(".");
-}
-
 void main()
 {
-    itoa(123);
+	char a[14];
+	a[0] = 0;
+	a[1] = 'H';
+	a[2] = 'e';
+	a[3] = 'l';
+	a[4] = 'l';
+	a[5] = 'o';
+	a[6] = ' ';
+	a[7] = 'w';
+	a[8] = 'o';
+	a[9] = 'r';
+	a[10] = 'l';
+	a[11] = 'd';
+	a[12] = '!';
+	a[13] = 0;
+	asm("<<<<<[<<<<<]>>>>>[.>>>>>]");
 }
+
