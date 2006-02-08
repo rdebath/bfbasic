@@ -21,14 +21,17 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_inclusive_or_expr(struct inclusive_or_expr *a)
+int genbf_inclusive_or_expr(struct inclusive_or_expr *a, int lval)
 {
     if (!a->end) {
+        if (lval)
+            ERROR("inclusive_or_expr", "Invalid l-value.");
+        
         /* genbf_inclusive_or_expr(a->v1);
         SPC; printf("|\n"); */
         UNIMPL("inclusive_or_expr");
     }
-    genbf_exclusive_or_expr(a->v2);
+    return genbf_exclusive_or_expr(a->v2, lval);
 }
 
 char *genbf_inclusive_or_expr_get_primary(int type, struct inclusive_or_expr *a)

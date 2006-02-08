@@ -30,7 +30,7 @@ void genbf_selection_statement(struct selection_statement *a)
     switch (a->type) {
         case _IF:
         case _IF_ELSE:
-            genbf_expr(a->v1);
+            genbf_expr(a->v1, 0);
             
             /* this will use a sneaky "subblock" format to make the jump-back
              * location predictable.  basically:

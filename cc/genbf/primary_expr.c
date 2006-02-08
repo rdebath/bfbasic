@@ -23,41 +23,53 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_primary_expr(struct primary_expr *a)
+int genbf_primary_expr(struct primary_expr *a, int lval)
 {
     int i, v;
     
     switch (a->type) {
         case _IDENTIFIER:
-            BF_PUSH;
-            pushTempVar(1);
-            /* where is this variable? */
-            v = varDepth(a->v._identifier->v);
-            /* FIXME: this needs to support a whole range of other idents */
-            if (v == -1)
-                ERROR("primary_expr", "Undefined identifier.");
-            
-            /* now go and get it */
-            printf("[-]");
-            for (i = 0; i < v; i++)
-                printf("<<<<<");
-            /* dup */
-            printf("[>>>+>+<<<<-]>>>[<<<+>>>-]>[");
-            /* carry it up */
-            for (i = 0; i < v; i++)
-                printf(">>>>>");
-            printf("+");
-            for (i = 0; i < v; i++)
-                printf("<<<<<");
-            printf("-]");
-            /* and put it in place */
-            for (i = 0; i < v; i++)
-                printf(">>>>>");
-            printf("[<<<<+>>>>-]<<<<");
-            fflush(stdout);
+            if (!lval) {
+                BF_PUSH;
+                pushTempVar(1);
+                /* where is this variable? */
+                v = varDepth(a->v._identifier->v);
+                /* FIXME: this needs to support a whole range of other idents */
+                if (v == -1)
+                    ERROR("primary_expr", "Undefined identifier.");
+                
+                /* now go and get it */
+                printf("[-]");
+                for (i = 0; i < v; i++)
+                    printf("<<<<<");
+                /* dup */
+                printf("[>>>+>+<<<<-]>>>[<<<+>>>-]>[");
+                /* carry it up */
+                for (i = 0; i < v; i++)
+                    printf(">>>>>");
+                printf("+");
+                for (i = 0; i < v; i++)
+                    printf("<<<<<");
+                printf("-]");
+                /* and put it in place */
+                for (i = 0; i < v; i++)
+                    printf(">>>>>");
+                printf("[<<<<+>>>>-]<<<<");
+                fflush(stdout);
+            } else {
+                /* lval - turn the identifier into a location */
+                v = varDepth(a->v._identifier->v);
+                if (v == -1)
+                    ERROR("primary_expr", "Undefined identifier.");
+                
+                return v;
+            }
             break;
         
         case _CONSTANT:
+            if (lval)
+                ERROR("primary_expr", "Invalid l-value.");
+            
             /* FIXME: this is a ridiculous way to generate a constant ... */
             BF_PUSH;
             pushTempVar(1);
@@ -80,7 +92,7 @@ void genbf_primary_expr(struct primary_expr *a)
             break;
             
         case _EXPR:
-            genbf_expr(a->v._expr);
+            return genbf_expr(a->v._expr, lval);
             break;
         
         /*case _IDENTIFIER:

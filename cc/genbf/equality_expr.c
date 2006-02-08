@@ -21,15 +21,17 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_equality_expr(struct equality_expr *a)
+int genbf_equality_expr(struct equality_expr *a, int lval)
 {
     if (a->type == _RELATIONAL_EXPR) {
-        genbf_relational_expr(a->v1._relational_expr);
-        return;
+        return genbf_relational_expr(a->v1._relational_expr, lval);
     }
     
-    genbf_equality_expr(a->v1._equality_expr);
-    genbf_relational_expr(a->v2);
+    if (lval)
+        ERROR("equality_expr", "Invalid l-value.");
+    
+    genbf_equality_expr(a->v1._equality_expr, 0);
+    genbf_relational_expr(a->v2, 0);
     switch (a->type) {
         case _EQUAL:
             printf("<<<<<[>>>>+<<<<-]+"

@@ -21,10 +21,12 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_conditional_expr(struct conditional_expr *a)
+int genbf_conditional_expr(struct conditional_expr *a, int lval)
 {
-    genbf_logical_or_expr(a->v1);
+    return genbf_logical_or_expr(a->v1, lval);
     if (!a->end) {
+        /* FIXME: how should lval be handled here? */
+        
         /* SPC; printf("?\n");
         genbf_logical_or_expr(a->v2);
         SPC; printf(":\n");

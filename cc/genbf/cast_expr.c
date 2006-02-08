@@ -21,11 +21,11 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_cast_expr(struct cast_expr *a)
+int genbf_cast_expr(struct cast_expr *a, int lval)
 {
     switch (a->type) {
         case _UNARY_EXPR:
-            genbf_unary_expr(a->v1._unary_expr);
+            return genbf_unary_expr(a->v1._unary_expr, lval);
             break;
             
         /* case _TYPE_CAST:

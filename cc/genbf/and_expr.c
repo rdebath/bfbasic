@@ -21,14 +21,17 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_and_expr(struct and_expr *a)
+int genbf_and_expr(struct and_expr *a, int lval)
 {
     if (!a->end) {
+        if (lval)
+            ERROR("and_expr", "Invalid l-value.");
+        
         /* genbf_and_expr(a->v1);
         SPC; printf("&\n"); */
         UNIMPL("and_expr");
     }
-    genbf_equality_expr(a->v2);
+    return genbf_equality_expr(a->v2, lval);
 }
 
 char *genbf_and_expr_get_primary(int type, struct and_expr *a)

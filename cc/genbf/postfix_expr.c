@@ -21,7 +21,7 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_postfix_expr(struct postfix_expr *a)
+int genbf_postfix_expr(struct postfix_expr *a, int lval)
 {
     struct primary_expr *p_e;
     char *f;
@@ -29,11 +29,14 @@ void genbf_postfix_expr(struct postfix_expr *a)
     
     switch (a->type) {
         case _PRIMARY_EXPR:
-            genbf_primary_expr(a->v1._primary_expr);
+            return genbf_primary_expr(a->v1._primary_expr, lval);
             break;
             
         case _SIMPLE_FCALL:
         case _FCALL:
+            if (lval)
+                ERROR("postfix_expr", "Invalid l-value.");
+            
             /* for builtins, the tree should look like this:
                -postfix_expr
                |

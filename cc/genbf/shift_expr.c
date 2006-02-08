@@ -21,11 +21,11 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_shift_expr(struct shift_expr *a)
+int genbf_shift_expr(struct shift_expr *a, int lval)
 {
     switch (a->type) {
         case _ADDITIVE_EXPR:
-            genbf_additive_expr(a->v1._additive_expr);
+            return genbf_additive_expr(a->v1._additive_expr, lval);
             break;
             
         /* case _LEFT_SHIFT:

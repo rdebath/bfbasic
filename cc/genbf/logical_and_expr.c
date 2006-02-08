@@ -21,14 +21,17 @@
 #include "../genbf.h"
 #include "generator.h"
 
-void genbf_logical_and_expr(struct logical_and_expr *a)
+int genbf_logical_and_expr(struct logical_and_expr *a, int lval)
 {
     if (!a->end) {
+        if (lval)
+            ERROR("logical_and_expr", "Invalid l-value.");
+        
         /* genbf_logical_and_expr(a->v1);
         SPC; printf("&&\n"); */
         UNIMPL("logical_and_expr");
     }
-    genbf_inclusive_or_expr(a->v2);
+    return genbf_inclusive_or_expr(a->v2, lval);
 }
 
 char *genbf_logical_and_expr_get_primary(int type, struct logical_and_expr *a)
