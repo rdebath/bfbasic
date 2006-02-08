@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sys/types.h>
+#include <signal.h>
+
 #define UNIMPL(x) \
 { \
     fprintf(stderr, "Unimplemented generation: %s\n", x); \
@@ -46,10 +49,7 @@
 }
 
 #define BF_PUSH printf(">>+>>>"); fflush(stdout)
-#define PUSH_TEMP tempstack++; BF_PUSH
 #define BF_POP printf("<<<-<<"); fflush(stdout)
-#define POP_TEMP tempstack--; BF_POP
-#define POP_TEMPS for (; tempstack > 0; tempstack--) BF_POP
 
 /* struct block holds information on what block of code we're in, how many
  * variables it uses, and how deep the stack is */
@@ -69,6 +69,14 @@ extern struct block *curblock;
  * effect: curblock now points at a block with the name given
  */
 void pushNamedBlock(const char *name);
+
+/* pushSubBlock
+ * input: an offset
+ * output: none
+ * effect: curblock now points at a block with the previous name!num+1+offset,
+ *         and num 0
+ */
+void pushSubBlock(int offset);
 
 /* pushBlock
  * input: none
@@ -106,11 +114,6 @@ void popBlock();
  */
 void outBlock();
 
-/* tempstack is the number of stack cells used for temporary variables - this
- * must be added to the number gotten from the variable list to properly access
- * a variable */
-extern int tempstack;
-
 /* struct var is a linear linked list of current variables */
 struct var {
     struct var *next;
@@ -122,17 +125,30 @@ extern struct var *curvar;
 /* pushVar
  * input: a variable name and width in stack cells
  * output: none
- * effect: a variable is pushed onto the variable stack, and the previous
- *         variable's depth is set
+ * effect: a variable is pushed onto the internal variable stack
  */
 void pushVar(const char *name, int width);
+
+/* pushTempVar
+ * input: a variable width in stack cells
+ * output: none
+ * effect: an unnamed variable is pushed onto the internal variable stack
+ */
+void pushTempVar(int width);
 
 /* popVar
  * input: none
  * output: none
- * effect: a variable is popped from the variable stack
+ * effect: a variable is popped from the variable stack (both internal and BF)
  */
 void popVar();
+
+/* ignoreVar
+ * input: none
+ * output: none
+ * effect: a variable is popped from the internal stack but left in the BF stack
+ */
+void ignoreVar();
 
 /* varDepth
  * input: variable name

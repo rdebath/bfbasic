@@ -25,6 +25,7 @@ void genbf_postfix_expr(struct postfix_expr *a)
 {
     struct primary_expr *p_e;
     char *f;
+    int i;
     
     switch (a->type) {
         case _PRIMARY_EXPR:
@@ -65,7 +66,8 @@ void genbf_postfix_expr(struct postfix_expr *a)
                 pushCall(f);
                 if (a->type == _FCALL) {
                     topop = genbf_argument_expr_list(a->v2._argument_expr_list);
-                    tempstack -= topop; /* these aren't ours */
+                    for (; topop > 0; topop--)
+                        ignoreVar(); /* these aren't ours */
                 }
                 outBlock();
             }

@@ -29,13 +29,13 @@ void genbf_primary_expr(struct primary_expr *a)
     
     switch (a->type) {
         case _IDENTIFIER:
-            PUSH_TEMP;
+            BF_PUSH;
+            pushTempVar(1);
             /* where is this variable? */
             v = varDepth(a->v._identifier->v);
             /* FIXME: this needs to support a whole range of other idents */
             if (v == -1)
                 ERROR("primary_expr", "Undefined identifier.");
-            v += tempstack;
             
             /* now go and get it */
             printf("[-]");
@@ -59,7 +59,8 @@ void genbf_primary_expr(struct primary_expr *a)
         
         case _CONSTANT:
             /* FIXME: this is a ridiculous way to generate a constant ... */
-            PUSH_TEMP;
+            BF_PUSH;
+            pushTempVar(1);
             printf("[-]");
             
             /* constants can be either numbers or 'characters' */

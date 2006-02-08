@@ -71,7 +71,7 @@ void genbf_relational_expr(struct relational_expr *a)
             break;
     }
     
-    POP_TEMP;
+    popVar();
     fflush(stdout);
 }
 

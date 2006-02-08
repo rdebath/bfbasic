@@ -37,7 +37,7 @@ void genbf_additive_expr(struct additive_expr *a)
     } else if (a->type == _SUBTRACT) {
         printf("[<<<<<->>>>>-]");
     }
-    POP_TEMP;
+    popVar();
     fflush(stdout);
 }
 

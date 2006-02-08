@@ -48,4 +48,6 @@ if (!strcmp(f, "asm")) {
         ERROR("builtin_functions", "asm: wrong parameter type");
     
     printf(asmc);
+    BF_PUSH;
+    pushTempVar(1);
 }

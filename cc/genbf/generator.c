@@ -23,7 +23,6 @@
 #include "generator.h"
 
 struct block *curblock = NULL;
-int tempstack = 0;
 struct var *curvar = NULL;
 
 /* pushNamedBlock
@@ -42,6 +41,27 @@ void pushNamedBlock(const char *name)
     curblock->num = 0;
     curblock->vars = 0;
     curblock->stack = 0;
+}
+
+/* pushSubBlock
+ * input: an offset
+ * output: none
+ * effect: curblock now points at a block with the previous name!num+1+offset,
+ *         and num 0
+ */
+void pushSubBlock(int offset)
+{
+    char *nname;
+    
+    pushBlock();
+    /* nname contains the new multi-! name */
+    nname = (char *) malloc(strlen(curblock->name) + 11);
+    if (!nname) { perror("malloc"); exit(1); }
+    /* this num is what makes this a "subblock" */
+    sprintf(nname, "%s!%d", curblock->name, curblock->num + offset);
+    free(curblock->name);
+    curblock->name = nname;
+    curblock->num = 0;
 }
 
 /* pushBlock
@@ -80,7 +100,9 @@ void pushCall(const char *func)
         exit(1);
     }
     
-    PUSH_TEMP;
+    BF_PUSH;
+    pushTempVar(1);
+    
     printf("(*%s!%d)(%s)", curblock->name, curblock->num + 1, func);
     
     pushBlock();
@@ -169,6 +191,24 @@ void outBlock()
  */
 void pushVar(const char *name, int width)
 {
+    /* this is pushed like a temp var, then named */
+    pushTempVar(width);
+    
+    curvar->name = strdup(name);
+    if (!curvar->name) { perror("strdup"); exit(1); }
+    
+    /* and added the var to the block */
+    curblock->vars++;
+    curblock->stack += width;
+}
+
+/* pushTempVar
+ * input: a variable width in stack cells
+ * output: none
+ * effect: an unnamed variable is pushed onto the internal variable stack
+ */
+void pushTempVar(int width)
+{
     struct var *prevvar;
     
     if (!curblock) {
@@ -176,17 +216,12 @@ void pushVar(const char *name, int width)
         exit(1);
     }
     
-    /* add the var to the block */
-    curblock->vars++;
-    curblock->stack += width;
-    
     /* and push the var on the stack */
     prevvar = curvar;
     NEW(curvar, struct var);
     
     curvar->next = prevvar;
-    curvar->name = strdup(name);
-    if (!curvar->name) { perror("strdup"); exit(1); }
+    curvar->name = NULL;
     curvar->width = width;
 }
 
@@ -198,13 +233,36 @@ void pushVar(const char *name, int width)
 void popVar()
 {
     struct var *nextvar;
+    int i;
     
     if (!curvar) {
         fprintf(stderr, "Internal compiler error in popVar()\n");
         exit(1);
     }
     
-    BF_POP;
+    for (i = 0; i < curvar->width; i++)
+        BF_POP;
+    
+    free(curvar->name);
+    nextvar = curvar->next;
+    free(curvar);
+    curvar = nextvar;
+}
+
+/* ignoreVar
+ * input: none
+ * output: none
+ * effect: a variable is popped from the internal stack but left in the BF stack
+ */
+void ignoreVar()
+{
+    struct var *nextvar;
+    int i;
+    
+    if (!curvar) {
+        fprintf(stderr, "Internal compiler error in ignoreVar()\n");
+        exit(1);
+    }
     
     free(curvar->name);
     nextvar = curvar->next;
@@ -227,7 +285,7 @@ int varDepth(const char *name)
     
     while (cur) {
         /* if it matches, return the current depth */
-        if (!strcmp(cur->name, name))
+        if (cur->name && !strcmp(cur->name, name))
             return depth;
         
         depth += cur->width;

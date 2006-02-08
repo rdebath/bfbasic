@@ -45,25 +45,16 @@ void genbf_selection_statement(struct selection_statement *a)
             
             /* get an "if-not" as well */
             printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
-                   "<[[-]>-<<<<(%s!%d!1)>>>]"
-                   ">[-<<<<(%s!%d%s)>>>>]"
+                   "<[[-]>-<<<<(%s!%d)>>>]"
+                   ">[-<<<<(%s!%d)>>>>]"
                    "<<<<",
                    curblock->name, curblock->num + 1,
-                   curblock->name, curblock->num + 2,
-                   a->type == _IF_ELSE ? "!1" : "");
+                   curblock->name, curblock->num + 2);
             
-            POP_TEMP;
+            popVar();
             
             /* go on to the if-block */
-            pushBlock();
-            /* nname contains the new multi-! name */
-            nname = (char *) malloc(strlen(curblock->name) + 11);
-            if (!nname) { perror("malloc"); exit(1); }
-            /* this num is what makes this a "subblock" */
-            sprintf(nname, "%s!%d", curblock->name, curblock->num);
-            free(curblock->name);
-            curblock->name = nname;
-            curblock->num = 1;
+            pushSubBlock(0);
             outBlock();
             
             genbf_statement(a->v2);
@@ -75,16 +66,8 @@ void genbf_selection_statement(struct selection_statement *a)
                 printf("(%s!%d)", curblock->next->name, curblock->next->num + 3);
                 
                 /* this is an if/else, so now we need yet another subblock */
-                popBlock();
-                pushBlock();
-                /* nname contains the new multi-! name */
-                nname = (char *) malloc(strlen(curblock->name) + 11);
-                if (!nname) { perror("malloc"); exit(1); }
-                /* this num is what makes this a "subblock" */
-                sprintf(nname, "%s!%d", curblock->name, curblock->num + 1);
-                free(curblock->name);
-                curblock->name = nname;
-                curblock->num = 1;
+                popNamedBlock();
+                pushSubBlock(1);
                 outBlock();
                 
                 genbf_statement(a->v3);
@@ -93,7 +76,7 @@ void genbf_selection_statement(struct selection_statement *a)
             }
             
             /* finally continue with our regularly scheduled programming */
-            popBlock();
+            popNamedBlock();
             pushBlock();
             if (a->type == _IF) {
                 curblock->num += 1;

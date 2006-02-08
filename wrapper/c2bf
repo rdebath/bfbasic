@@ -31,7 +31,7 @@ do
         export STRIP="c2bf-strip"
         
     else
-        echo "I don\'t know how to handle $1!"
+        echo "I don't know how to handle $1!"
     fi
     
     shift

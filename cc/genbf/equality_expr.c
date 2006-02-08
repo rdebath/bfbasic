@@ -46,7 +46,7 @@ void genbf_equality_expr(struct equality_expr *a)
             break;
     }
     
-    POP_TEMP;
+    popVar();
     fflush(stdout);
 }
 

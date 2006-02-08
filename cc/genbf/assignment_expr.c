@@ -48,7 +48,6 @@ void genbf_assignment_expr(struct assignment_expr *a)
             d = varDepth(ident);
             if (d == -1)
                 ERROR("assignment_expr", "Bad or uninitialized variable.");
-            d += tempstack;
             
             /* carry this value ... */
             printf("[>>>>+<<<<-]>>>>");
@@ -71,8 +70,7 @@ void genbf_assignment_expr(struct assignment_expr *a)
             
             fflush(stdout);
             
-            /* then pop off the result of the expression */
-            POP_TEMP;
+            /* leave the value of the expression to pass up */
             
             /*genbf_unary_expr(a->v1._unary_expr);
             genbf_assignment_operator(a->v2);

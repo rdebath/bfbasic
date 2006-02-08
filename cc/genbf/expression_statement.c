@@ -25,7 +25,7 @@ void genbf_expression_statement(struct expression_statement *a)
 {
     if (a->has_expr) {
         genbf_expr(a->v);
-        /* expressions always leave temporaries, so get rid of them */
-        POP_TEMPS;
+        /* expressions always leave a temporary, so get rid of it */
+        popVar();
     }
 }

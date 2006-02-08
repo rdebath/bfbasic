@@ -32,8 +32,9 @@ void genbf_jump_statement(struct jump_statement *a)
              * there's no way to verify at present */
             if (a->has_expr) {
                 genbf_expr(a->v._expr);
-                /* this expression is the return address, so put it in place */
-                bd = blockDepth() + tempstack - 1;
+                /* this expression is the return code, so put it in place */
+                /* FIXME: this ignores the possibility of multi-cell data types */
+                bd = blockDepth() - 1;
                 
                 if (bd != 0) {
                     for (i = 0; i < bd; i++)
@@ -50,16 +51,11 @@ void genbf_jump_statement(struct jump_statement *a)
                     printf("-]");
                 }
                 
-                POP_TEMP;
+                popVar();
                 /* pop off the rest of the variables */
-                for (i = 0; i < tempstack; i++)
-                    printf("<<<-<<");
-                cur = curvar;
-                while (cur) {
+                for (cur = curvar; cur; cur = cur->next)
                     for (i = 0; i < cur->width; i++)
-                        printf("<<<-<<");
-                    cur = cur->next;
-                }
+                        BF_POP;
                 
                 /* now the stack should look like this:
                  * {return address}{return code}
