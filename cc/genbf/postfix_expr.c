@@ -25,7 +25,7 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval)
 {
     struct primary_expr *p_e;
     char *f;
-    int i;
+    int i, loc;
     
     switch (a->type) {
         case _PRIMARY_EXPR:
@@ -76,26 +76,38 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval)
             }
             break;
             
-        /* case _ARRAY_REF:
-            genbf_postfix_expr(a->v1._postfix_expr);
-            SPC; printf("[\n");
-            genbf_expr(a->v2._expr);
-            SPC; printf("]\n");
+        case _ARRAY_REF:
+            /* get the location of the array being referenced */
+            loc = genbf_postfix_expr(a->v1._postfix_expr, 1);
+            
+            if (loc == -1)
+                ERROR("postfix_expr", "True pointer relocation is not yet supported.");
+            
+            genbf_expr(a->v2._expr, 0);
+            
+            /* subtract that from the depth */
+            printf(">>>");
+            /* FIXME: more bad constant generation */
+            for (i = 0; i < loc; i++)
+                printf("+");
+            printf("<<<[>>>-<<<-]>>>"
+                   "[[<<<<<+>>>>>-]<<<<<-]" /* now we're at the value we want */
+                   );
+            if (lval) {
+                printf("<<<");
+                STACK_POS_TO_PTR;
+                printf("#");
+                return -1;
+            } else {
+                printf("<<<[>>>+>+<<<<-]" /* copied into W and C */
+                       ">>>>[<<<<+>>>>-]" /* now in S and W */
+                       "<<[>[>>>>>+<<<<<-]>>>>]" /* walk it over */
+                       ">[<<<+>>>-]" /* and drop it in */
+                       );
+            }
             break;
             
-        case _SIMPLE_FCALL:
-            genbf_postfix_expr(a->v1._postfix_expr);
-            SPC; printf("()\n");
-            break;
-            
-        case _FCALL:
-            genbf_postfix_expr(a->v1._postfix_expr);
-            SPC; printf("(\n");
-            genbf_argument_expr_list(a->v2._argument_expr_list);
-            SPC; printf(")\n");
-            break;
-            
-        case _DOT:
+        /* case _DOT:
             genbf_postfix_expr(a->v1._postfix_expr);
             SPC; printf(".\n");
             genbf_identifier(a->v2._identifier);

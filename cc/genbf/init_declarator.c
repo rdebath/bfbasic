@@ -23,25 +23,20 @@
 
 void genbf_init_declarator(struct init_declarator *a)
 {
-    /* the tree should look like this:
-       -init_declarator
-       |
-       |-declarator (v1)
-       ||(FIXME: this may have a pointer, but that's not used yet)
-       ||
-       ||-declarator2 (v2)
-       ||(FIXME: type must be _IDENTIFIER (no array support yet))
-       ||
-       ||-identifier (v1._identifier)
-       |||v is the variable name
-       */
-    if (a->v1->v2->type != _IDENTIFIER) {
-        ERROR("init_declarator", "Arrays and function declarations are not yet supported.");
-    }
+    struct type *vt;
+    int i;
     
     /* push this variable */
-    BF_PUSH;
-    pushVar(a->v1->v2->v1._identifier->v, 1);
+    pushVar(genbf_declarator2_get_identifier(a->v1->v2), 1);
+    
+    /* then use genbf_declarator to get its type */
+    vt = genbf_declarator(a->v1, NULL);
+    curvar->type = vt;
+    curvar->width = vt->size;
+    
+    /* and push it in BF */
+    for (i = 0; i < curvar->width; i++)
+        BF_PUSH;
     
     if (a->assign) {
         UNIMPL("init_declarator with assignment");

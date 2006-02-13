@@ -223,6 +223,26 @@ void pushTempVar(int width)
     curvar->next = prevvar;
     curvar->name = NULL;
     curvar->width = width;
+    curvar->type = NULL;
+}
+
+/* newVar
+ * input: none
+ * output: an empty MALLOC'D struct var
+ * effect: none
+ */
+struct var *newVar()
+{
+    struct var *nv;
+    
+    NEW(nv, struct var);
+    
+    nv->next = NULL;
+    nv->name = NULL;
+    nv->width = 0;
+    nv->type = NULL;
+    
+    return nv;
 }
 
 /* popVar
@@ -242,6 +262,8 @@ void popVar()
     
     for (i = 0; i < curvar->width; i++)
         BF_POP;
+    
+    freeType(curvar->type);
     
     free(curvar->name);
     nextvar = curvar->next;
@@ -284,11 +306,14 @@ int varDepth(const char *name)
     cur = curvar;
     
     while (cur) {
+        /* we need the left end of the variable */
+        depth += cur->width - 1;
+        
         /* if it matches, return the current depth */
         if (cur->name && !strcmp(cur->name, name))
             return depth;
         
-        depth += cur->width;
+        depth += 1;
         cur = cur->next;
     }
     
@@ -316,4 +341,61 @@ int blockDepth()
     }
     
     return depth;
+}
+
+/* poppedType
+ * input: a struct type which you'd like the popped version of
+ * output: the popped version, MALLOC'D
+ * effect: none
+ */
+struct type *poppedType(struct type *t)
+{
+    struct type *cur, *o, *oc, *on;
+    
+    o = NULL;
+    oc = NULL;
+    on = NULL;
+    
+    cur = t->next;
+    
+    /* go through, each time adding a level */
+    while (cur) {
+        if (!o) {
+            /* start the chain */
+            NEW(o, struct type);
+            oc = o;
+        } else {
+            /* continue the chain */
+            NEW(on, struct type);
+            oc->next = on;
+            oc = on;
+        }
+        
+        /* copy it in */
+        memcpy(oc, cur, sizeof(struct type));
+        
+        /* set next to NULL */
+        oc->next = NULL;
+    }
+    
+    /* now o is our newly created list */
+    return o;
+}
+
+/* freeType
+ * input: a struct type *
+ * output: none
+ * effect: the linear linked list's memory is free'd
+ */
+void freeType(struct type *t)
+{
+    struct type *cur, *next;
+    
+    cur = t;
+    
+    while (cur) {
+        next = cur->next;
+        free(cur);
+        cur = next;
+    }
 }

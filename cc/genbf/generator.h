@@ -48,8 +48,19 @@
     } \
 }
 
-#define BF_PUSH printf(">>+>>>"); fflush(stdout)
-#define BF_POP printf("<<<-<<"); fflush(stdout)
+#define BF_PUSH \
+printf("<<<[>+>+<<-]>[<+>-]>" \
+       "[>>>+<<<-]>>>+>>>"); \
+fflush(stdout);
+#define BF_POP printf("<<<[-]<<"); fflush(stdout)
+
+#define STACK_POS_TO_PTR \
+printf("<<<[>+>++<<-]" /* get the stack pos of the previous one */ \
+       ">[<+>-]>" /* put it back */ \
+       "[>>>>+<<<<-]>>>>++" /* copy it into our walk cell */ \
+       "<[>[>>>>>+<<<<<-]>>>>]" /* and walk up the stack */ \
+       "<<[-]>>>[<<<+>>>-]<<<"); /* then deposit it */ \
+fflush(stdout);
 
 /* struct block holds information on what block of code we're in, how many
  * variables it uses, and how deep the stack is */
@@ -119,6 +130,7 @@ struct var {
     struct var *next;
     char *name;
     int width;
+    struct type *type;
 };
 extern struct var *curvar;
 
@@ -135,6 +147,13 @@ void pushVar(const char *name, int width);
  * effect: an unnamed variable is pushed onto the internal variable stack
  */
 void pushTempVar(int width);
+
+/* newVar
+ * input: none
+ * output: an empty MALLOC'D struct var
+ * effect: none
+ */
+struct var *newVar();
 
 /* popVar
  * input: none
@@ -163,5 +182,45 @@ int varDepth(const char *name);
  * effect: none
  */
 int blockDepth();
+
+/* struct type is a linear-linked-list of type specifiers.  When dereferencing
+ * a pointer, one is popped off */
+struct type {
+    struct type *next;
+    
+    enum {
+        TYPE_INT, TYPE_PTR
+    } basic_type;
+    
+    /* if type is pointer, can actually be an in-place array.  If array > 0,
+     * that is the case */
+    int array;
+    
+    /* this is the total size at this level (a pure pointer will make this 1,
+     * an array will make this prevsize * array */
+    int size;
+};
+
+/* EXAMPLE:
+ * type{.basic_type = TYPE_PTR, .array = 0} ->
+ * type{.basic_type = TYPE_PTR, .array = 0} ->
+ * type{.basic_type = TYPE_INT, .array = 0} -> NULL
+ * =
+ * int **
+ */
+
+/* poppedType
+ * input: a struct type which you'd like the popped version of
+ * output: the popped version, MALLOC'D
+ * effect: none
+ */
+struct type *poppedType(struct type *t);
+
+/* freeType
+ * input: a struct type *
+ * output: none
+ * effect: the linear linked list's memory is free'd
+ */
+void freeType(struct type *t);
 
 #endif

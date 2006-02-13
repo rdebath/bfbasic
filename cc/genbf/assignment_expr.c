@@ -37,8 +37,10 @@ int genbf_assignment_expr(struct assignment_expr *a, int lval)
             /* get the location as an lval (this will return the depth of the
              * variable in the stack, or -1 and push a pointer to the stack) */
             d = genbf_unary_expr(a->v1._unary_expr, 1);
-            if (d == -1)
-                ERROR("assignment_expr", "Complex assignment is not yet supported.");
+            if (d == -1) {
+                /* ERROR("assignment_expr", "Complex assignment is not yet supported."); */
+                return 0;
+            }
             
             /* FIXME: only primitive (=) assignments :) */
             if (a->v2->type != _ASSIGN)

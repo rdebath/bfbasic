@@ -44,9 +44,9 @@ void genbf_compound_statement(struct compound_statement *a);
 int genbf_conditional_expr(struct conditional_expr *a, int lval);
 char *genbf_conditional_expr_get_primary(int type, struct conditional_expr *a);
 
-void genbf_declarator(struct declarator *a);
+struct type *genbf_declarator(struct declarator *a, struct type *into);
 
-void genbf_declarator2(struct declarator2 *a);
+struct type *genbf_declarator2(struct declarator2 *a, struct type *into);
 char *genbf_declarator2_get_identifier(struct declarator2 *a);
 
 void genbf_declaration(struct declaration *a);
