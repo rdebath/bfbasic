@@ -21,12 +21,12 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_expr(struct expr *a, int lval)
+int genbf_expr(struct expr *a, int lval, struct type **t)
 {
     if (!a->end) {
-        genbf_expr(a->v1, lval);
+        genbf_expr(a->v1, lval, t);
         /* FIXME: this is a comma-separated list of expressions, it can't just
          * go anywhere ... */
     }
-    return genbf_assignment_expr(a->v2, lval);
+    return genbf_assignment_expr(a->v2, lval, t);
 }

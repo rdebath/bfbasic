@@ -31,7 +31,7 @@ void genbf_jump_statement(struct jump_statement *a)
             /* FIXME: if there's anything after this, it's an error, but
              * there's no way to verify at present */
             if (a->has_expr) {
-                genbf_expr(a->v._expr, 0);
+                genbf_expr(a->v._expr, 0, NULL);
                 /* this expression is the return code, so put it in place */
                 /* FIXME: this ignores the possibility of multi-cell data types */
                 bd = blockDepth() - 1;

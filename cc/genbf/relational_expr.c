@@ -21,10 +21,10 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_relational_expr(struct relational_expr *a, int lval)
+int genbf_relational_expr(struct relational_expr *a, int lval, struct type **t)
 {
     if (a->type == _SHIFT_EXPR) {
-        return genbf_shift_expr(a->v1._shift_expr, lval);
+        return genbf_shift_expr(a->v1._shift_expr, lval, t);
     }
     
     /* relational expressions can't be lvals */
@@ -32,8 +32,8 @@ int genbf_relational_expr(struct relational_expr *a, int lval)
         ERROR("relational_expr", "Invalid l-value.");
     
     /* push the two operands */
-    genbf_relational_expr(a->v1._relational_expr, 0);
-    genbf_shift_expr(a->v2, 0);
+    genbf_relational_expr(a->v1._relational_expr, 0, NULL);
+    genbf_shift_expr(a->v2, 0, NULL);
     
     /* and do the comparison */
     switch (a->type) {

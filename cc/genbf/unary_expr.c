@@ -21,11 +21,11 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_unary_expr(struct unary_expr *a, int lval)
+int genbf_unary_expr(struct unary_expr *a, int lval, struct type **t)
 {
     switch (a->type) {
         case _POSTFIX_EXPR:
-            return genbf_postfix_expr(a->v1._postfix_expr, lval);
+            return genbf_postfix_expr(a->v1._postfix_expr, lval, t);
             break;
             
         case _UNARY_OP:
@@ -34,7 +34,7 @@ int genbf_unary_expr(struct unary_expr *a, int lval)
             
             switch (a->v1._unary_operator->type) {
                 case _LOGIC_NOT:
-                    genbf_cast_expr(a->v2, 0);
+                    genbf_cast_expr(a->v2, 0, NULL);
                     printf("<+>[<->[-]]<[>+<-]>");
                     fflush(stdout);
                     break;

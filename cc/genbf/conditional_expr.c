@@ -21,9 +21,9 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_conditional_expr(struct conditional_expr *a, int lval)
+int genbf_conditional_expr(struct conditional_expr *a, int lval, struct type **t)
 {
-    return genbf_logical_or_expr(a->v1, lval);
+    return genbf_logical_or_expr(a->v1, lval, t);
     if (!a->end) {
         /* FIXME: how should lval be handled here? */
         

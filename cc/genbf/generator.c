@@ -292,12 +292,12 @@ void ignoreVar()
     curvar = nextvar;
 }
 
-/* varDepth
+/* getVar
  * input: variable name
  * output: the depth of the variable in the current stack or -1 on error
- * effect: none
+ * effect: v is set to the variable
  */
-int varDepth(const char *name)
+int getVar(const char *name, struct var **v)
 {
     int depth = 0;
     struct var *cur;
@@ -310,8 +310,12 @@ int varDepth(const char *name)
         depth += cur->width - 1;
         
         /* if it matches, return the current depth */
-        if (cur->name && !strcmp(cur->name, name))
+        if (cur->name && !strcmp(cur->name, name)) {
+            if (v) {
+                *v = cur;
+            }
             return depth;
+        }
         
         depth += 1;
         cur = cur->next;
@@ -343,12 +347,12 @@ int blockDepth()
     return depth;
 }
 
-/* poppedType
- * input: a struct type which you'd like the popped version of
- * output: the popped version, MALLOC'D
+/* dupType
+ * input: a struct type to be duplicated
+ * output: the duplicated version, MALLOC'D
  * effect: none
  */
-struct type *poppedType(struct type *t)
+struct type *dupType(struct type *t)
 {
     struct type *cur, *o, *oc, *on;
     
@@ -356,7 +360,7 @@ struct type *poppedType(struct type *t)
     oc = NULL;
     on = NULL;
     
-    cur = t->next;
+    cur = t;
     
     /* go through, each time adding a level */
     while (cur) {

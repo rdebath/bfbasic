@@ -169,12 +169,12 @@ void popVar();
  */
 void ignoreVar();
 
-/* varDepth
+/* getVar
  * input: variable name
  * output: the depth of the variable in the current stack or -1 on error
- * effect: none
+ * effect: v is set to the variable
  */
-int varDepth(const char *name);
+int getVar(const char *name, struct var **v);
 
 /* blockDepth
  * input: none
@@ -209,12 +209,12 @@ struct type {
  * int **
  */
 
-/* poppedType
- * input: a struct type which you'd like the popped version of
- * output: the popped version, MALLOC'D
+/* dupType
+ * input: a struct type to be duplicated
+ * output: the duplicated version, MALLOC'D
  * effect: none
  */
-struct type *poppedType(struct type *t);
+struct type *dupType(struct type *t);
 
 /* freeType
  * input: a struct type *

@@ -21,11 +21,11 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_multiplicative_expr(struct multiplicative_expr *a, int lval)
+int genbf_multiplicative_expr(struct multiplicative_expr *a, int lval, struct type **t)
 {
     switch (a->type) {
         case _CAST_EXPR:
-            return genbf_cast_expr(a->v1._cast_expr, lval);
+            return genbf_cast_expr(a->v1._cast_expr, lval, t);
             break;
             
         /* case _MULTIPLY:

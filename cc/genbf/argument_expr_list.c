@@ -27,6 +27,6 @@ int genbf_argument_expr_list(struct argument_expr_list *a)
     if (!a->end) {
         cur += genbf_argument_expr_list(a->v1);
     }
-    genbf_assignment_expr(a->v2, 0);
+    genbf_assignment_expr(a->v2, 0, NULL);
     return cur;
 }

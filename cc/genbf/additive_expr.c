@@ -21,18 +21,18 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_additive_expr(struct additive_expr *a, int lval)
+int genbf_additive_expr(struct additive_expr *a, int lval, struct type **t)
 {
     if (a->type == _MULTIPLICATIVE_EXPR) {
-        return genbf_multiplicative_expr(a->v1._multiplicative_expr, lval);
+        return genbf_multiplicative_expr(a->v1._multiplicative_expr, lval, t);
     }
     
     if (lval)
         ERROR("additive_expr", "Invalid l-value.");
     
     /* generate the left and right side as temps, then do the add or subtract */
-    genbf_additive_expr(a->v1._additive_expr, 0);
-    genbf_multiplicative_expr(a->v2, 0);
+    genbf_additive_expr(a->v1._additive_expr, 0, NULL);
+    genbf_multiplicative_expr(a->v2, 0, NULL);
     if (a->type == _ADD) {
         /* I should be on top of operand 2 */
         printf("[<<<<<+>>>>>-]");

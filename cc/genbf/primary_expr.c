@@ -23,7 +23,7 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_primary_expr(struct primary_expr *a, int lval)
+int genbf_primary_expr(struct primary_expr *a, int lval, struct type **t)
 {
     int i, v;
     
@@ -33,7 +33,7 @@ int genbf_primary_expr(struct primary_expr *a, int lval)
                 BF_PUSH;
                 pushTempVar(1);
                 /* where is this variable? */
-                v = varDepth(a->v._identifier->v);
+                v = getVar(a->v._identifier->v, NULL);
                 /* FIXME: this needs to support a whole range of other idents */
                 if (v == -1)
                     ERROR("primary_expr", "Undefined identifier.");
@@ -58,10 +58,12 @@ int genbf_primary_expr(struct primary_expr *a, int lval)
                 fflush(stdout);
             } else {
                 /* lval - turn the identifier into a location */
-                v = varDepth(a->v._identifier->v);
+                struct var *sv;
+                v = getVar(a->v._identifier->v, &sv);
                 if (v == -1)
                     ERROR("primary_expr", "Undefined identifier.");
                 
+                *t = sv->type;
                 return v;
             }
             break;
@@ -92,7 +94,7 @@ int genbf_primary_expr(struct primary_expr *a, int lval)
             break;
             
         case _EXPR:
-            return genbf_expr(a->v._expr, lval);
+            return genbf_expr(a->v._expr, lval, t);
             break;
         
         /*case _IDENTIFIER:

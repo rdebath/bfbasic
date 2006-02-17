@@ -21,7 +21,7 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_inclusive_or_expr(struct inclusive_or_expr *a, int lval)
+int genbf_inclusive_or_expr(struct inclusive_or_expr *a, int lval, struct type **t)
 {
     if (!a->end) {
         if (lval)
@@ -31,7 +31,7 @@ int genbf_inclusive_or_expr(struct inclusive_or_expr *a, int lval)
         SPC; printf("|\n"); */
         UNIMPL("inclusive_or_expr");
     }
-    return genbf_exclusive_or_expr(a->v2, lval);
+    return genbf_exclusive_or_expr(a->v2, lval, t);
 }
 
 char *genbf_inclusive_or_expr_get_primary(int type, struct inclusive_or_expr *a)

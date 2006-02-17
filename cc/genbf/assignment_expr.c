@@ -21,13 +21,14 @@
 #include "../genbf.h"
 #include "generator.h"
 
-int genbf_assignment_expr(struct assignment_expr *a, int lval)
+int genbf_assignment_expr(struct assignment_expr *a, int lval, struct type **t)
 {
     int i, d;
+    struct type *st;
     
     switch (a->type) {
         case _CONDITIONAL_EXPR:
-            return genbf_conditional_expr(a->v1._conditional_expr, lval);
+            return genbf_conditional_expr(a->v1._conditional_expr, lval, t);
             break;
             
         case _ASSIGNMENT:
@@ -36,7 +37,7 @@ int genbf_assignment_expr(struct assignment_expr *a, int lval)
             
             /* get the location as an lval (this will return the depth of the
              * variable in the stack, or -1 and push a pointer to the stack) */
-            d = genbf_unary_expr(a->v1._unary_expr, 1);
+            d = genbf_unary_expr(a->v1._unary_expr, 1, &st);
             if (d == -1) {
                 /* ERROR("assignment_expr", "Complex assignment is not yet supported."); */
                 return 0;
@@ -46,7 +47,7 @@ int genbf_assignment_expr(struct assignment_expr *a, int lval)
             if (a->v2->type != _ASSIGN)
                 ERROR("assignment_expr", "Only primitive assignments are supported thusfar.");
             
-            genbf_assignment_expr(a->v3, 0);
+            genbf_assignment_expr(a->v3, 0, NULL);
             /* this put one more on the stack, so our depth is greater */
             d += curvar->width;
             
