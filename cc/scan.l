@@ -118,6 +118,11 @@ yywrap()
 	return(1);
 }
 
+/* for flex */
+#ifndef yytext_ptr
+#define yytext_ptr yytext
+#endif
+
 comment()
 {
 	char c, c1;
