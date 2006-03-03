@@ -19,6 +19,13 @@ do
     then
         export OFILES="$OFILES $1"
         
+    elif [ "$1" = "-help" -o \
+           "$1" = "--help" -o \
+           "$1" = "-h" ]
+    then
+        echo 'Use: c2bf [-16|-32] [-strip] {filenames}'
+        exit 0
+        
     elif [ "$1" = "-16" ]
     then
         export FILTER="c2bf-1to16bit"

@@ -62,6 +62,19 @@ printf("<<<[>+>++<<-]" /* get the stack pos of the previous one */ \
        "<<[-]>>>[<<<+>>>-]<<<"); /* then deposit it */ \
 fflush(stdout);
 
+#define STACK_PTR_TO_POS_CARRY \
+printf(">>>[<<<<<+>>>>>-]" /* move down the walk */ \
+       ">[<<<<<+>>>>>-]<<<<<" /* and carry */ \
+       "<<[" /* start our walk down */ \
+       ">[<<<<<+>>>>>-]>[<<<<<+>>>>>-]" /* move down our walk and carry */ \
+       "<<<<<<<]" /* finish the walk down */ \
+       ">[" /* start the walk up */ \
+       "[>>>>>+<<<<<-]>[>>>>>+<<<<<-]" /* move up walk and carry */ \
+       ">>>>--]" /* finish the walk up */ \
+       ">[>>>>>+<<<<<-]" /* copy up the carry */ \
+       ">"); /* get to the stack pos */ \
+fflush(stdout);
+
 /* struct block holds information on what block of code we're in, how many
  * variables it uses, and how deep the stack is */
 struct block {

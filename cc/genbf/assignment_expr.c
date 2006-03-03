@@ -39,7 +39,31 @@ int genbf_assignment_expr(struct assignment_expr *a, int lval, struct type **t)
              * variable in the stack, or -1 and push a pointer to the stack) */
             d = genbf_unary_expr(a->v1._unary_expr, 1, &st);
             if (d == -1) {
-                /* ERROR("assignment_expr", "Complex assignment is not yet supported."); */
+                struct type *ttype;
+                
+                /* generate the value and put it in the carry */
+                genbf_assignment_expr(a->v3, 0, NULL);
+                printf("[<+<+>>-]<<[>>+<<-]>>");
+                
+                /* then swap-n-pop (essentially, we're leaving the value on
+                   top, even though there's one below it) */
+                ttype = curvar->type;
+                curvar->type = curvar->next->type;
+                curvar->next->type = ttype;
+                popVar();
+                
+                /* put this var in walk */
+                printf("[>>>+<<<-]");
+                
+                /* get to the proper location */
+                STACK_PTR_TO_POS_CARRY;
+                
+                /* set it to the carry */
+                printf("[-]>>>>[<<<<+>>>>-]"
+                       "<<[>>>>>]<<");
+                
+                /* then move the value into this slot to pass down */
+                fflush(stdout);
                 return 0;
             }
             
@@ -52,7 +76,7 @@ int genbf_assignment_expr(struct assignment_expr *a, int lval, struct type **t)
             d += curvar->width;
             
             /* carry this value ... */
-            printf("[>>>>+<<<<-]>>>>");
+            printf("[>>>+>+<<<<-]>>>[<<<+>>>-]>");
             
             /* the proper distance */
             printf("[");

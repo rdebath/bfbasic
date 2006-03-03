@@ -107,10 +107,11 @@ int main()
     }
     
     /* start the labelling code */
-    printf(">>>>>");
+    printf(">>");
     for (i = 0; i < curblock->num; i++) {
-        printf(">>+>>>");
+        printf("[>+>>>>+<<<<<-]>[<+>-]>>>>+");
     }
+    printf(">>>");
     for (i = 0; i < curblock->num; i++) {
         printf("<<<<<");
     }

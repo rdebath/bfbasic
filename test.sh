@@ -41,5 +41,13 @@ if [ "$OUTP" = "Y" ] ; then echo "PASS"
 else echo "FAIL"
 fi
 
+# Test 7
+echo -n "Test 7: "
+./wrapper/c2bf cc/tests/test7.c
+export OUTP="`$BFI a.b`"
+if [ "$OUTP" = "Hello world!" ] ; then echo "PASS"
+else echo "FAIL"
+fi
+
 # Done
 rm -f a.b

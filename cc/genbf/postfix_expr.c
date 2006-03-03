@@ -83,7 +83,8 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval, struct type **t)
             
             /* the returned type will be one farther in vt
              * FIXME: this should verify that this is indeed an array*/
-            *t = vt->next;
+            if (lval)
+                *t = vt->next;
             
             if (loc == -1)
                 ERROR("postfix_expr", "True pointer relocation is not yet supported.");
@@ -95,22 +96,20 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval, struct type **t)
             /* FIXME: more bad constant generation */
             for (i = 0; i < loc; i++)
                 printf("+");
-            printf("<<<[>>>-<<<");
+            printf("<<<[>>>");
             for (i = 0; i < vt->next->size; i++)
                 printf("-");
-            printf("]>>>"
-                   "[[<<<<<+>>>>>-]<<<<<-]" /* now we're at the value we want */
+            printf("<<<-]>>>"
+                   "[[<<<<<+>>>>>-]<<<<<-]<<<" /* now we're at the value we want */
                    );
             if (lval) {
-                printf("<<<");
                 STACK_POS_TO_PTR;
-                printf("#");
                 return -1;
             } else {
-                printf("<<<[>>>+>+<<<<-]" /* copied into W and C */
+                printf("[>>>+>+<<<<-]" /* copied into W and C */
                        ">>>>[<<<<+>>>>-]" /* now in S and W */
                        "<<[>[>>>>>+<<<<<-]>>>>]" /* walk it over */
-                       ">[<<<+>>>-]" /* and drop it in */
+                       ">[<<<+>>>-]<<<" /* and drop it in */
                        );
             }
             break;
