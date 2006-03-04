@@ -27,6 +27,7 @@ int genbf_expr(struct expr *a, int lval, struct type **t)
         genbf_expr(a->v1, lval, t);
         /* FIXME: this is a comma-separated list of expressions, it can't just
          * go anywhere ... */
+        popVar();
     }
     return genbf_assignment_expr(a->v2, lval, t);
 }

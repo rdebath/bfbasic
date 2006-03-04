@@ -94,7 +94,7 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval, struct type **t)
             /* subtract that times size from the depth */
             printf(">>>");
             /* FIXME: more bad constant generation */
-            for (i = 0; i < loc; i++)
+            for (i = 0; i <= loc; i++)
                 printf("+");
             printf("<<<[>>>");
             for (i = 0; i < vt->next->size; i++)

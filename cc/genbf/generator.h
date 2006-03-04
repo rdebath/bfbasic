@@ -71,8 +71,7 @@ printf(">>>[<<<<<+>>>>>-]" /* move down the walk */ \
        ">[" /* start the walk up */ \
        "[>>>>>+<<<<<-]>[>>>>>+<<<<<-]" /* move up walk and carry */ \
        ">>>>--]" /* finish the walk up */ \
-       ">[>>>>>+<<<<<-]" /* copy up the carry */ \
-       ">"); /* get to the stack pos */ \
+       "<<<"); /* get to the stack pos */ \
 fflush(stdout);
 
 /* struct block holds information on what block of code we're in, how many

@@ -23,6 +23,9 @@
 
 int genbf_unary_expr(struct unary_expr *a, int lval, struct type **t)
 {
+    struct type *tignore;
+    int d;
+    
     switch (a->type) {
         case _POSTFIX_EXPR:
             return genbf_postfix_expr(a->v1._postfix_expr, lval, t);
@@ -33,6 +36,14 @@ int genbf_unary_expr(struct unary_expr *a, int lval, struct type **t)
                 ERROR("unary_expr", "Invalid l-value.");
             
             switch (a->v1._unary_operator->type) {
+                case _ADDRESS_OF:
+                    /* simply do it as an lval */
+                    d = genbf_cast_expr(a->v2, 1, &tignore);
+                    if (d != -1) {
+                        ERROR("unary_expr", "Simple address-of operation is not supported.");
+                    }
+                    break;
+                
                 case _LOGIC_NOT:
                     genbf_cast_expr(a->v2, 0, NULL);
                     printf("<+>[<->[-]]<[>+<-]>");
