@@ -26,99 +26,106 @@ void genbf_iteration_statement(struct iteration_statement *a)
     char *pblockname;
     int pblocknum;
     
-    switch (a->type) {
-        case _WHILE:
-        case _DO_WHILE:
-            UNIMPL("iteration_statement");
-            break;
-            
-        case _FOR:
-            if (a->has_initializer) {
-                /* just run this now */
-                genbf_expr(a->v1, 0, NULL);
-                popVar();
-            }
-            
-            pblockname = curblock->name;
-            pblocknum = curblock->num;
-            
-            /* now, the condition (1st time) */
-            if (a->has_condition) {
-                genbf_expr(a->v2, 0, NULL);
-            } else {
-                struct type *t;
-                
-                /* just invent one */
-                pushTempVar(1);
-                NEW(t, struct type);
-                t->next = NULL;
-                t->basic_type = TYPE_INT;
-                t->array = 0;
-                t->size = 1;
-                BF_PUSH;
-                printf("[-]+");
-                
-                curvar->type = t;
-            }
-            
-            /* get an "if-not" as well */
-            printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
-                   "<[[-]>-<<<<(%s!%d)>>>]"
-                   ">[-<<<<(%s!%d)>>>>]"
-                   "<<<<",
-                   pblockname, pblocknum + 1,
-                   pblockname, pblocknum + 2);
-            
-            popVar();
-            
-            /* now push on the for's subblock */
-            pushSubBlock(0);
-            outBlock();
-            
-            /* and the for's content */
-            genbf_statement(a->v4);
-            
-            /* this follows the other content */
-            genbf_expr(a->v3, 0, NULL);
-            popVar();
-            
-            /* now, the condition (2nd time) */
-            if (a->has_condition) {
-                genbf_expr(a->v2, 0, NULL);
-            } else {
-                struct type *t;
-                
-                /* just invent one */
-                pushTempVar(1);
-                NEW(t, struct type);
-                t->next = NULL;
-                t->basic_type = TYPE_INT;
-                t->array = 0;
-                t->size = 1;
-                BF_PUSH;
-                printf("[-]+");
-                
-                curvar->type = t;
-            }
-            
-            /* get an "if-not" as well */
-            printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
-                   "<[[-]>-<<<<(%s!%d)>>>]"
-                   ">[-<<<<(%s!%d)>>>>]"
-                   "<<<<",
-                   pblockname, pblocknum + 1,
-                   pblockname, pblocknum + 2);
-            
-            popVar();
-            
-            /* pop off the for's block */
-            popNamedBlock();
-            pushBlock();
-            curblock->num += 1;
-            outBlock();
-            
-            /* now we're back to normal code */
-            fflush(stdout);
-            break;
+    if (a->type == _DO_WHILE) {
+        UNIMPL("iteration_statement");
+        exit(1);
     }
+    
+    /* initializer if applicable */
+    if (a->type == _FOR && a->has_initializer) {
+        /* just run this now */
+        genbf_expr(a->v1, 0, NULL);
+        popVar();
+    }
+    
+    pblockname = curblock->name;
+    pblocknum = curblock->num;
+    
+    /* now, the condition (1st time) */
+    if (a->type != _FOR || a->has_condition) {
+        if (a->type == _FOR) {
+            genbf_expr(a->v2, 0, NULL);
+        } else {
+            genbf_expr(a->v1, 0, NULL);
+        }
+    } else {
+        struct type *t;
+        
+        /* just invent one */
+        pushTempVar(1);
+        NEW(t, struct type);
+        t->next = NULL;
+        t->basic_type = TYPE_INT;
+        t->array = 0;
+        t->size = 1;
+        BF_PUSH;
+        printf("[-]+");
+        
+        curvar->type = t;
+    }
+    
+    /* get an "if-not" as well */
+    printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
+           "<[[-]>-<<<<(%s!%d)>>>]"
+           ">[-<<<<(%s!%d)>>>>]"
+           "<<<<",
+           pblockname, pblocknum + 1,
+           pblockname, pblocknum + 2);
+    
+    popVar();
+    
+    /* now push on the for's subblock */
+    pushSubBlock(0);
+    outBlock();
+    
+    /* and the for's content */
+    genbf_statement(a->v4);
+    
+    /* this follows the other content */
+    if (a->type == _FOR && a->has_post) {
+        genbf_expr(a->v3, 0, NULL);
+        popVar();
+    }
+    
+    /* now, the condition (2nd time) */
+    if (a->type != _FOR || a->has_condition) {
+        if (a->type == _FOR) {
+            genbf_expr(a->v2, 0, NULL);
+        } else {
+            genbf_expr(a->v1, 0, NULL);
+        }
+    } else {
+        struct type *t;
+        
+        /* just invent one */
+        pushTempVar(1);
+        NEW(t, struct type);
+        t->next = NULL;
+        t->basic_type = TYPE_INT;
+        t->array = 0;
+        t->size = 1;
+        BF_PUSH;
+        printf("[-]+");
+        
+        curvar->type = t;
+    }
+    
+    /* get an "if-not" as well */
+    printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
+           "<[[-]>-<<<<(%s!%d)>>>]"
+           ">[-<<<<(%s!%d)>>>>]"
+           "<<<<",
+           pblockname, pblocknum + 1,
+           pblockname, pblocknum + 2);
+            
+    popVar();
+    
+    /* pop off the for's block */
+    popNamedBlock();
+    pushBlock();
+    curblock->num += 1;
+    outBlock();
+    
+    /* now we're back to normal code */
+    fflush(stdout);
 }
