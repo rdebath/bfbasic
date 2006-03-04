@@ -26,24 +26,36 @@
 
 struct block *curblock = NULL;
 
-#define BUFSIZE 32255
-
 int main()
 {
     char *line;
     struct block *newblock, *cur;
-    int i, osl;
+    int i, osl, cbs, rs;
     
     /* read in the blocks ... */
     while (!feof(stdin) && !ferror(stdin)) {
-        line = (char *) malloc(BUFSIZE + 1);
+        cbs = 2048;
+        line = (char *) malloc(cbs + 1);
         if (!line) { perror("malloc"); exit(1); }
-        line[BUFSIZE] = '\0';
+        line[cbs] = '\0';
         
         /* read in the line */
-        if (!fgets(line, BUFSIZE, stdin)) {
+        if (!fgets(line, cbs, stdin)) {
             free(line);
             continue;
+        } else {
+            while (line[cbs - 2]) {
+                /* expand the line */
+                line = (char *) realloc(line, (cbs * 2) + 1);
+                if (!line) { perror("realloc"); exit(1); }
+                line[cbs * 2] = '\0';
+                
+                /* read more */
+                if (!fgets(line + cbs - 1, cbs + 1, stdin))
+                    break;
+                
+                cbs *= 2;
+            }
         }
         
         /* get rid of trailing newlines */
