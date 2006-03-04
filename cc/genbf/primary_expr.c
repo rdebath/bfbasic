@@ -26,18 +26,35 @@
 int genbf_primary_expr(struct primary_expr *a, int lval, struct type **t)
 {
     int i, v;
+    struct var *sv;
     
     switch (a->type) {
         case _IDENTIFIER:
+            /* where is this variable? */
+            v = getVar(a->v._identifier->v, &sv);
+            
+            /* there's a special case: if !lval but it's an array, we actually
+             * want to treat it as an lval (get the data's location).  If lval
+             * and it's an array, we die (that's not allowed) */
+            if (sv->type->basic_type == TYPE_PTR &&
+                sv->type->array) {
+                if (!lval) {
+                    lval = 1;
+                } else {
+                    ERROR("primary_expr", "Changing array pointer values is not currently possible.");
+                }
+            }
+            
             if (!lval) {
                 BF_PUSH;
                 pushTempVar(1);
-                /* where is this variable? */
-                v = getVar(a->v._identifier->v, NULL);
+                curvar->type = dupType(sv->type);
+                
                 /* FIXME: this needs to support a whole range of other idents */
                 if (v == -1)
                     ERROR("primary_expr", "Undefined identifier.");
                 
+                v++;
                 /* now go and get it */
                 printf("[-]");
                 for (i = 0; i < v; i++)
@@ -58,13 +75,31 @@ int genbf_primary_expr(struct primary_expr *a, int lval, struct type **t)
                 fflush(stdout);
             } else {
                 /* lval - turn the identifier into a location */
-                struct var *sv;
-                v = getVar(a->v._identifier->v, &sv);
                 if (v == -1)
                     ERROR("primary_expr", "Undefined identifier.");
                 
-                *t = sv->type;
-                return v;
+                if (t) *t = sv->type;
+                
+                /* now we must turn this depth into a location */
+                BF_PUSH;
+                pushTempVar(1);
+                
+                printf("A");
+                fflush(stdout);
+                curvar->type = dupType(sv->type);
+                printf("B");
+                fflush(stdout);
+                /* this is now a pointer at the array */
+                curvar->type->array = 0;
+                curvar->type->size = 1;
+                
+                printf("[-]");
+                v++;
+                for (i = 0; i < v; i++)
+                    printf("<<<<<");
+                STACK_POS_TO_PTR;
+                
+                return -1;
             }
             break;
         
@@ -75,6 +110,8 @@ int genbf_primary_expr(struct primary_expr *a, int lval, struct type **t)
             /* FIXME: this is a ridiculous way to generate a constant ... */
             BF_PUSH;
             pushTempVar(1);
+            curvar->type = intType();
+            
             printf("[-]");
             
             /* constants can be either numbers or 'characters' */

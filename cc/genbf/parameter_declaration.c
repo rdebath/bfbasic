@@ -23,6 +23,8 @@
 
 void genbf_parameter_declaration(struct parameter_declaration *a)
 {
+    struct type *vt;
+    
     /* the tree here should look like this:
        -parameter_declaration
        |(type must be _DECLARATION)
@@ -39,4 +41,9 @@ void genbf_parameter_declaration(struct parameter_declaration *a)
         ERROR("parameter_declaration", "Type name parameters are not yet supported.\n");
     
     pushVar(genbf_declarator2_get_identifier(a->v2->v2), 1);
+    
+    /* find its type */
+    vt = genbf_declarator(a->v2, NULL);
+    curvar->type = vt;
+    curvar->width = vt->size;
 }

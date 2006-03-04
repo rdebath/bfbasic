@@ -380,6 +380,9 @@ struct type *dupType(struct type *t)
         
         /* set next to NULL */
         oc->next = NULL;
+        
+        /* step */
+        cur = cur->next;
     }
     
     /* now o is our newly created list */
@@ -402,4 +405,20 @@ void freeType(struct type *t)
         free(cur);
         cur = next;
     }
+}
+
+/* intType
+ * input: none
+ * output: a MALLOC'D struct type with a simple int
+ * effect: none
+ */
+struct type *intType()
+{
+    struct type *t;
+    
+    NEW(t, struct type);
+    t->next = NULL;
+    t->basic_type = TYPE_INT;
+    t->array = 0;
+    t->size = 1;
 }

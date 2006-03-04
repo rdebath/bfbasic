@@ -18,34 +18,27 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../genbf.h"
-#include "generator.h"
-
-struct type *genbf_declarator(struct declarator *a, struct type *into)
+void main()
 {
-    struct type *t, *nt;
+    char a[13];
+    int i;
+
+    a[0] = 'H';
+    a[1] = 'e';
+    a[2] = 'l';
+    a[3] = 'l';
+    a[4] = 'o';
+    a[5] = ' ';
+    a[6] = 'w';
+    a[7] = 'o';
+    a[8] = 'r';
+    a[9] = 'l';
+    a[10] = 'd';
+    a[11] = '!';
+    a[12] = 0;
     
-    t = genbf_declarator2(a->v2, into);
-    
-    if (a->pointer) {
-        /* FIXME: this should handle type_specifier_list */
-        struct pointer *cur = a->v1;
-        while (cur) {
-            NEW(nt, struct type);
-            nt->next = t;
-            nt->basic_type = TYPE_PTR;
-            nt->array = 0;
-            nt->size = 1;
-            t = nt;
-            
-            /* if this is the end, no more curs */
-            if (cur->end) {
-                cur = NULL;
-            } else {
-                cur = cur->v2;
-            }
-        }
+    for (i = 0; asm("<<<[<<<<<]>>>#>>[>>>>>]<<"), a[i]; i = i + 1) {
+        a[i];
+        asm(">>>>>.<<<<<");
     }
-    
-    return t;
 }

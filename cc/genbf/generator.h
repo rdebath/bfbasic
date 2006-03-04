@@ -74,6 +74,17 @@ printf(">>>[<<<<<+>>>>>-]" /* move down the walk */ \
        "<<<"); /* get to the stack pos */ \
 fflush(stdout);
 
+#define STACK_PTR_TO_POS \
+printf(">>>[<<<<<+>>>>>-]<<<<" /* move down the walk */ \
+       "<<[" /* start our walk down */ \
+       ">[<<<<<+>>>>>-]" /* move down our walk */ \
+       "<<<<<<]" /* finish the walk down */ \
+       ">[" /* start the walk up */ \
+       "[>>>>>+<<<<<-]" /* move up walk */ \
+       ">>>>>--]" /* finish the walk up */ \
+       "<<<"); /* get to the stack pos */ \
+fflush(stdout);
+
 /* struct block holds information on what block of code we're in, how many
  * variables it uses, and how deep the stack is */
 struct block {
@@ -234,5 +245,12 @@ struct type *dupType(struct type *t);
  * effect: the linear linked list's memory is free'd
  */
 void freeType(struct type *t);
+
+/* intType
+ * input: none
+ * output: a MALLOC'D struct type with a simple int
+ * effect: none
+ */
+struct type *intType();
 
 #endif

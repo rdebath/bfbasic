@@ -79,39 +79,45 @@ int genbf_postfix_expr(struct postfix_expr *a, int lval, struct type **t)
             
         case _ARRAY_REF:
             /* get the location of the array being referenced */
-            loc = genbf_postfix_expr(a->v1._postfix_expr, 1, &vt);
+            genbf_postfix_expr(a->v1._postfix_expr, 0, NULL);
             
             /* the returned type will be one farther in vt
              * FIXME: this should verify that this is indeed an array*/
             if (lval)
-                *t = vt->next;
-            
-            if (loc == -1)
-                ERROR("postfix_expr", "True pointer relocation is not yet supported.");
+                *t = curvar->type->next;
             
             genbf_expr(a->v2._expr, 0, NULL);
             
-            /* subtract that times size from the depth */
-            printf(">>>");
-            /* FIXME: more bad constant generation */
-            for (i = 0; i <= loc; i++)
-                printf("+");
-            printf("<<<[>>>");
-            for (i = 0; i < vt->next->size; i++)
-                printf("-");
-            printf("<<<-]>>>"
-                   "[[<<<<<+>>>>>-]<<<<<-]<<<" /* now we're at the value we want */
-                   );
+            /* add the new location */
+            printf("[<<<<<");
+            for (i = 0; i < curvar->type->size; i++)
+                printf("++");
+            printf(">>>>>-]");
+            
+            /* pop off this location */
+            popVar();
+            
             if (lval) {
-                STACK_POS_TO_PTR;
+                /* it's already on top, we're done */
                 return -1;
-            } else {
-                printf("[>>>+>+<<<<-]" /* copied into W and C */
-                       ">>>>[<<<<+>>>>-]" /* now in S and W */
-                       "<<[>[>>>>>+<<<<<-]>>>>]" /* walk it over */
-                       ">[<<<+>>>-]<<<" /* and drop it in */
-                       );
             }
+            
+            /* deref */
+            /* FIXME: this should do size checking */
+            vt = curvar->type;
+            curvar->type = curvar->type->next;
+            free(vt);
+            
+            /* get there */
+            printf("[>>>+<<<-]");
+            STACK_PTR_TO_POS;
+            
+            /* and move the value up */
+            printf("[>>>+>+<<<<-]" /* copied into W and C */
+                   ">>>>[<<<<+>>>>-]" /* now in S and W */
+                   "<<[>[>>>>>+<<<<<-]>>>>]" /* walk it over */
+                   ">[<<<+>>>-]<<<" /* and drop it in */
+                   );
             break;
             
         /* case _DOT:
