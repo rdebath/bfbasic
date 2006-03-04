@@ -260,10 +260,8 @@ void popVar()
         exit(1);
     }
     
-    printf("A:%s", curvar->name ? curvar->name : "null");
     for (i = 0; i < curvar->width; i++)
         BF_POP;
-    printf("B");
     
     freeType(curvar->type);
     
