@@ -27,6 +27,39 @@ int genbf_multiplicative_expr(struct multiplicative_expr *a, int lval, struct ty
         case _CAST_EXPR:
             return genbf_cast_expr(a->v1._cast_expr, lval, t);
             break;
+        
+        case _MULTIPLY:
+            if (lval)
+                ERROR("multiplicative_expr", "Invalid l-value.");
+            /* call the builtin function */
+            pushCall("__builtin_mul");
+            genbf_multiplicative_expr(a->v1._multiplicative_expr, 0, NULL);
+            genbf_cast_expr(a->v2, 0, NULL);
+            ignoreVar(); ignoreVar(); /* these are for the next function */
+            outBlock();
+            break;
+            
+        case _DIVIDE:
+            if (lval)
+                ERROR("multiplicative_expr", "Invalid l-value.");
+            /* call the builtin function */
+            pushCall("__builtin_div");
+            genbf_multiplicative_expr(a->v1._multiplicative_expr, 0, NULL);
+            genbf_cast_expr(a->v2, 0, NULL);
+            ignoreVar(); ignoreVar(); /* these are for the next function */
+            outBlock();
+            break;
+            
+        case _MODULO:
+            if (lval)
+                ERROR("multiplicative_expr", "Invalid l-value.");
+            /* call the builtin function */
+            pushCall("__builtin_mod");
+            genbf_multiplicative_expr(a->v1._multiplicative_expr, 0, NULL);
+            genbf_cast_expr(a->v2, 0, NULL);
+            ignoreVar(); ignoreVar(); /* these are for the next function */
+            outBlock();
+            break;
             
         /* case _MULTIPLY:
             genbf_multiplicative_expr(a->v1._multiplicative_expr);

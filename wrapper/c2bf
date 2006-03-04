@@ -51,6 +51,6 @@ do
 done
 
 # Step three: put it all together
-cat $OFILES $DIR/../ld/__start.o | c2bf-ld > a.b.1
+cat $OFILES $DIR/../ld/__start.o $DIR/../math/bf_math.o | c2bf-ld > a.b.1
 $FILTER a.b.1 | $STRIP > a.b
 rm -f $TFILES a.b.1

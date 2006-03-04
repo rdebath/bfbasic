@@ -84,11 +84,7 @@ int genbf_primary_expr(struct primary_expr *a, int lval, struct type **t)
                 BF_PUSH;
                 pushTempVar(1);
                 
-                printf("A");
-                fflush(stdout);
                 curvar->type = dupType(sv->type);
-                printf("B");
-                fflush(stdout);
                 /* this is now a pointer at the array */
                 curvar->type->array = 0;
                 curvar->type->size = 1;

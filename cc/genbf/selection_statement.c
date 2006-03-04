@@ -25,7 +25,8 @@
 
 void genbf_selection_statement(struct selection_statement *a)
 {
-    char *nname;
+    char *nname, *pblockname;
+    int pblocknum;
     
     switch (a->type) {
         case _IF:
@@ -44,12 +45,14 @@ void genbf_selection_statement(struct selection_statement *a)
              */
             
             /* get an "if-not" as well */
+            pblockname = curblock->name;
+            pblocknum = curblock->num;
             printf("[>>>+>+<<<<-]>>>>[<<<<+>>>>-]+"
                    "<[[-]>-<<<<(%s!%d)>>>]"
                    ">[-<<<<(%s!%d)>>>>]"
                    "<<<<",
-                   curblock->name, curblock->num + 1,
-                   curblock->name, curblock->num + 2);
+                   pblockname, pblocknum + 1,
+                   pblockname, pblocknum + 2);
             
             popVar();
             
@@ -61,9 +64,9 @@ void genbf_selection_statement(struct selection_statement *a)
             
             /* this needs to continue to the proper place */
             if (a->type == _IF) {
-                printf("(%s!%d)", curblock->next->name, curblock->next->num + 2);
+                printf("(%s!%d)", pblockname, pblocknum + 2);
             } else {
-                printf("(%s!%d)", curblock->next->name, curblock->next->num + 3);
+                printf("(%s!%d)", pblockname, pblocknum + 3);
                 
                 /* this is an if/else, so now we need yet another subblock */
                 popNamedBlock();
@@ -72,7 +75,7 @@ void genbf_selection_statement(struct selection_statement *a)
                 
                 genbf_statement(a->v3);
                 
-                printf("(%s!%d)", curblock->next->name, curblock->next->num + 3);
+                printf("(%s!%d)", pblockname, pblocknum + 3);
             }
             
             /* finally continue with our regularly scheduled programming */
